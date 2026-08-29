@@ -1,3 +1,0 @@
-# Hashes of file build rules.
-18f313f5d62570f2d972c48a36e24733 CMakeFiles/compile_shaders
-e331bd9b619725ab53412de474c6f64b shader.spv
