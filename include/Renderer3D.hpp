@@ -63,7 +63,9 @@ public:
     void createTextureSampler();
     void createDepthResources();
 
-    int MAX_FRAMES_IN_FLIGHT;
+    void loadModel(Mesh model);
+
+    int MAX_FRAMES_IN_FLIGHT = 2;
 
 private:
 

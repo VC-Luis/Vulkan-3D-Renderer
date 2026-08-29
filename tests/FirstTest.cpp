@@ -2,6 +2,7 @@
 #include <Renderer3D.hpp>
 #include <vertex.hpp>
 #include <camera.hpp>
+#include "../include/mesh.hpp"
 
 Camera cam(glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f), 60.0f, 1.0f, 90.0f, 0.1f, 0.1f, 1000.0f);
 bool firstMouse = true;
@@ -33,7 +34,6 @@ void mouse_callback(GLFWwindow* window, double xPos, double yPos)
 int main(int argc, char const *argv[])
 {
     Renderer3D renderer;
-    renderer.MAX_FRAMES_IN_FLIGHT = 2;
 
     glfwSetCursorPosCallback(window.GLWindow, mouse_callback);
 	glfwSetInputMode(window.GLWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
@@ -43,16 +43,23 @@ int main(int argc, char const *argv[])
     renderer.generateImageManagement(window);
     renderer.createDepthResources();
     renderer.generateCommandInfrastructure();
+
     renderer.createGraphicsPipeline("shader.spv", "vertMain", "shader.spv", "fragMain");
+<<<<<<< HEAD
 
     Mesh shipMesh("/home/luis/Documents/Projects/Vulkan 3D Renderer/tests/ship-large.obj");
     renderer.loadModel(shipMesh);
 
+=======
+    Mesh shipMesh("/home/luis/Documents/Projects/Vulkan 3D Renderer/tests/ship-large.obj");
+    renderer.loadModel(shipMesh);
+>>>>>>> f584ce0 (Added mesh class)
     renderer.createBuffers();
 
     renderer.createTextureImage("/home/luis/Documents/Projects/Vulkan 3D Renderer/tests/colormap.png");
     renderer.createTextureImageView();
     renderer.createTextureSampler();
+
 
     renderer.createDescriptors(sizeof(UniformBufferObject));
     renderer.createSyncObjects();

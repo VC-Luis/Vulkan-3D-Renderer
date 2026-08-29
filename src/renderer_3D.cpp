@@ -354,6 +354,7 @@ void transitionLoadedImageLayout(vk::raii::CommandBuffer &commandBuffer, const v
     }
     commandBuffer.pipelineBarrier(sourceStage, destinationStage, {}, {}, nullptr, barrier);
 }
+
 vk::raii::ImageView Renderer3D::createImageView(vk::Image const &image, vk::Format format, vk::ImageAspectFlags aspectFlags)
 {
     vk::ImageSubresourceRange subresourceRange;
@@ -399,8 +400,6 @@ void Renderer3D::createTextureSampler()
 
     textureSampler = vk::raii::Sampler(logicalDevice, samplerInfo);
 }
-
-
 
 //Firstly, we need to create the Vulkan instance, the connection between this application and the Vulkan library
 //To do this, we just need to give it some informations
@@ -1144,10 +1143,17 @@ std::pair<vk::raii::Image, vk::raii::DeviceMemory> Renderer3D::createImage(uint3
     return {std::move(image), std::move(imageMemory)};
 }
 
+<<<<<<< HEAD
 void Renderer3D::loadModel(Mesh mesh)
 {
     vertices = mesh.vertices;
     indices = mesh.indices;
+=======
+void Renderer3D::loadModel(Mesh model)
+{
+    vertices = model.vertices;
+    indices = model.indices;
+>>>>>>> f584ce0 (Added mesh class)
 }
 
 void Renderer3D::createDepthResources()
