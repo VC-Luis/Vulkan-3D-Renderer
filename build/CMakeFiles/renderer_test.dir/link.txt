@@ -1,0 +1,1 @@
+/usr/bin/g++ -g -Wl,--dependency-file=CMakeFiles/renderer_test.dir/link.d CMakeFiles/renderer_test.dir/tests/FirstTest.cpp.o -o renderer_test  libRenderer3D.a /usr/lib/libglfw.so.3.4 /usr/lib/libvulkan.so

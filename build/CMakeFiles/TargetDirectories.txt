@@ -1,0 +1,5 @@
+/home/luis/Documents/Projects/Vulkan 3D Renderer/build/CMakeFiles/Renderer3D.dir
+/home/luis/Documents/Projects/Vulkan 3D Renderer/build/CMakeFiles/renderer_test.dir
+/home/luis/Documents/Projects/Vulkan 3D Renderer/build/CMakeFiles/compile_shaders.dir
+/home/luis/Documents/Projects/Vulkan 3D Renderer/build/CMakeFiles/edit_cache.dir
+/home/luis/Documents/Projects/Vulkan 3D Renderer/build/CMakeFiles/rebuild_cache.dir
