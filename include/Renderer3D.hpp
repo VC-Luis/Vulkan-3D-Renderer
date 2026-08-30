@@ -35,6 +35,8 @@ public:
     void createBuffers();
     void createDescriptors(size_t UBOSize);
 
+    void loadTexture(std::string texturePath);
+
     void waitForFrame();
     void fetchNewImage(Window& showWindow, Camera cam);
 

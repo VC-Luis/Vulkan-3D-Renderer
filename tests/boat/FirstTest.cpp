@@ -51,17 +51,13 @@ int main(int argc, char const *argv[])
 
     renderer.createBuffers();
 
-    renderer.createTextureImage("assets/colormap.png");
-    renderer.createTextureImageView();
-    renderer.createTextureSampler();
-
+    renderer.loadTexture("assets/colormap.png");
 
     renderer.createDescriptors(sizeof(UniformBufferObject));
     renderer.createSyncObjects();
 
     while(!window.windowShouldClose())
     {
-        glfwPollEvents();
         cam.updateCameraParameters();
 
         if(glfwGetKey(window.GLWindow, GLFW_KEY_W) == GLFW_PRESS)
@@ -102,5 +98,3 @@ int main(int argc, char const *argv[])
 
     return 0;
 }
-
-

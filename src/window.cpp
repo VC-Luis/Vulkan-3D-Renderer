@@ -62,5 +62,6 @@ Window::~Window()
 
 bool Window::windowShouldClose()
 {
+    glfwPollEvents();
     return glfwWindowShouldClose(GLWindow);
 }

@@ -1310,3 +1310,10 @@ void Renderer3D::cleanUpSwapchain()
     swapChainImageViews.clear();
     swapChain = nullptr;
 }
+
+void Renderer3D::loadTexture(std::string texturePath)
+{
+    createTextureImage(texturePath);
+    createTextureImageView();
+    createTextureSampler();
+}
