@@ -1143,17 +1143,10 @@ std::pair<vk::raii::Image, vk::raii::DeviceMemory> Renderer3D::createImage(uint3
     return {std::move(image), std::move(imageMemory)};
 }
 
-<<<<<<< HEAD
 void Renderer3D::loadModel(Mesh mesh)
 {
     vertices = mesh.vertices;
     indices = mesh.indices;
-=======
-void Renderer3D::loadModel(Mesh model)
-{
-    vertices = model.vertices;
-    indices = model.indices;
->>>>>>> f584ce0 (Added mesh class)
 }
 
 void Renderer3D::createDepthResources()
