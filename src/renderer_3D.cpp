@@ -8,9 +8,6 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
-#define TINYOBJLOADER_IMPLEMENTATION
-#include "tiny_obj_loader.h"
-
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE //Forces GLM's depth values to range from Vulkan's 0 - 1 instead of OpenGL's -1 - 1 
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -1147,52 +1144,10 @@ std::pair<vk::raii::Image, vk::raii::DeviceMemory> Renderer3D::createImage(uint3
     return {std::move(image), std::move(imageMemory)};
 }
 
-void Renderer3D::loadModel(std::string modelPath)
+void Renderer3D::loadModel(Mesh mesh)
 {
-    tinyobj::attrib_t attrib;
-    std::vector<tinyobj::shape_t> shapes;
-    std::vector<tinyobj::material_t> materials;
-    std::string warn, err;
-
-    if(!tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, modelPath.c_str()))
-    {
-        throw std::runtime_error(warn + err);
-    }
-
-    for(const auto& shape : shapes)
-    {
-        for(const auto& index : shape.mesh.indices)
-        {
-            Vertex vertex{};
-
-
-            vertex.pos = {
-                attrib.vertices[3 * index.vertex_index + 0],
-                attrib.vertices[3 * index.vertex_index + 1],
-                attrib.vertices[3 * index.vertex_index + 2]
-            };
-
-            if(2 * index.texcoord_index + 0 <= 0 || 2 * index.texcoord_index + 1 <= 0)
-            {
-                std::cout << YELLOW << "TEXTURE COORD WITH FUNKY INDEX ALERT" << RESET << std::endl;
-                vertex.tex = {0.0f, 0.0f};
-
-            }
-            else
-            {
-                vertex.tex = {
-                    attrib.texcoords[2 * index.texcoord_index + 0],
-                    1.0f - attrib.texcoords[2 * index.texcoord_index + 1]
-                };
-            }
-
-
-            vertex.col = {1.0f, 1.0f, 1.0f};
-
-            vertices.push_back(vertex);
-            indices.push_back(indices.size());
-        }
-    }
+    vertices = mesh.vertices;
+    indices = mesh.indices;
 }
 
 void Renderer3D::createDepthResources()

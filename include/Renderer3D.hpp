@@ -4,6 +4,7 @@
 #include "window.hpp"
 #include "vertex.hpp"
 #include "camera.hpp"
+#include "mesh.hpp"
 
 #ifndef RENDERER3D_H
 #define RENDERER3D_H
@@ -49,7 +50,7 @@ public:
     void createDescriptorSetLayout();
     void createGraphicsPipeline(const std::string& vertShaderPath, const char* vertStartpoint, const std::string& fragShaderPath, const char* fragStartpoint);
     void createCommandPool();
-    void loadModel(std::string modelPath);
+    void loadModel(Mesh mesh);
     void createVertexBuffer(std::vector<Vertex> vertices);
     void createIndexBuffer(std::vector<uint32_t> indices);
     void createUniformBuffers(size_t UBOSize);

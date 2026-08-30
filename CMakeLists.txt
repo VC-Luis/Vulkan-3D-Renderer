@@ -14,6 +14,7 @@ add_library(Renderer3D STATIC
     src/window.cpp
     src/vertex.cpp 
     src/camera.cpp
+    src/mesh.cpp
     src/stb_image.h 
     src/tiny_obj_loader.h
 )
