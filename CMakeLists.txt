@@ -21,18 +21,26 @@ add_library(Renderer3D STATIC
 
 target_include_directories(Renderer3D PUBLIC ${PROJECT_SOURCE_DIR}/include ${CMAKE_CURRENT_BINARY_DIR})
 
-add_executable(renderer_test tests/FirstTest.cpp)
+add_executable(boat_test tests/boat/FirstTest.cpp)
 
-add_dependencies(renderer_test compile_shaders)
+add_test(
+    NAME boat_test
+    COMMAND boat_test
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/tests/boat
+)
 
-set_property(TARGET renderer_test PROPERTY CXX_STANDARD 20)
+add_dependencies(boat_test compile_shaders)
 
-set_property(TARGET renderer_test PROPERTY CMAKE_VERBOSE_MAKEFILE 1)
+set_target_properties(boat_test PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/tests/boat)
 
-target_link_libraries(renderer_test Renderer3D glfw Vulkan::Vulkan)
+set_property(TARGET boat_test PROPERTY CXX_STANDARD 20)
+
+set_property(TARGET boat_test PROPERTY CMAKE_VERBOSE_MAKEFILE 1)
+
+target_link_libraries(boat_test Renderer3D glfw Vulkan::Vulkan)
 
 set(SHADER_SRC ${CMAKE_CURRENT_SOURCE_DIR}/src/shader.slang)
-set(SHADER_SPV ${CMAKE_CURRENT_BINARY_DIR}/shader.spv)
+set(SHADER_SPV ${CMAKE_CURRENT_SOURCE_DIR}/tests/boat/assets/shader.spv)
 
 add_custom_command(
     OUTPUT ${SHADER_SPV}

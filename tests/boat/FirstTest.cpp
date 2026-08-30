@@ -44,14 +44,14 @@ int main(int argc, char const *argv[])
     renderer.createDepthResources();
     renderer.generateCommandInfrastructure();
 
-    renderer.createGraphicsPipeline("shader.spv", "vertMain", "shader.spv", "fragMain");
+     renderer.createGraphicsPipeline("assets/shader.spv", "vertMain", "assets/shader.spv", "fragMain");
 
-    Mesh shipMesh("/home/luis/Documents/Projects/Vulkan 3D Renderer/tests/ship-large.obj");
+    Mesh shipMesh("assets/ship-large.obj");
     renderer.loadModel(shipMesh);
 
     renderer.createBuffers();
 
-    renderer.createTextureImage("/home/luis/Documents/Projects/Vulkan 3D Renderer/tests/colormap.png");
+    renderer.createTextureImage("assets/colormap.png");
     renderer.createTextureImageView();
     renderer.createTextureSampler();
 
