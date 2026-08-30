@@ -45,15 +45,10 @@ int main(int argc, char const *argv[])
     renderer.generateCommandInfrastructure();
 
     renderer.createGraphicsPipeline("shader.spv", "vertMain", "shader.spv", "fragMain");
-<<<<<<< HEAD
 
     Mesh shipMesh("/home/luis/Documents/Projects/Vulkan 3D Renderer/tests/ship-large.obj");
     renderer.loadModel(shipMesh);
 
-=======
-    Mesh shipMesh("/home/luis/Documents/Projects/Vulkan 3D Renderer/tests/ship-large.obj");
-    renderer.loadModel(shipMesh);
->>>>>>> f584ce0 (Added mesh class)
     renderer.createBuffers();
 
     renderer.createTextureImage("/home/luis/Documents/Projects/Vulkan 3D Renderer/tests/colormap.png");
