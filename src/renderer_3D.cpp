@@ -229,7 +229,7 @@ void Renderer3D::endSingleTimeCommands(vk::raii::CommandBuffer&& commandBuffer)
     submitInfo.pCommandBuffers = &*commandBuffer;
 
     graphicsQueue.submit(submitInfo, nullptr);
-    graphicsQueue.waitIdle();    
+    graphicsQueue.waitIdle();
 }
 
 [[nodiscard]] vk::raii::ShaderModule Renderer3D::createShaderModule(const std::vector<char>& code) const
@@ -708,34 +708,34 @@ void Renderer3D::createCommandPool()
     std::cout << GREEN << "Command pool was successfully created!" << std::endl;
 }
 
-void Renderer3D::createVertexBuffer(std::vector<Vertex> vertices)
+void Renderer3D::createVertexBuffer(Mesh& mesh)
 {
-    vk::DeviceSize bufferSize = sizeof(vertices[0]) * vertices.size();
+    vk::DeviceSize bufferSize = sizeof(mesh.vertices[0]) * mesh.vertices.size();
     
     auto [stagingBuffer, stagingBufferMemory] = createBuffer(bufferSize, vk::BufferUsageFlagBits::eTransferSrc, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent);
     
     void* dataStaging = stagingBufferMemory.mapMemory(0, bufferSize);
-    memcpy(dataStaging, vertices.data(), bufferSize);
+    memcpy(dataStaging, mesh.vertices.data(), bufferSize);
     stagingBufferMemory.unmapMemory();
     
-    std::tie(vertexBuffer, vertexBufferMemory) = createBuffer(bufferSize, vk::BufferUsageFlagBits::eVertexBuffer | vk::BufferUsageFlagBits::eTransferDst, vk::MemoryPropertyFlagBits::eDeviceLocal);
+    std::tie(mesh.vertexBuffer, mesh.vertexBufferMemory) = createBuffer(bufferSize, vk::BufferUsageFlagBits::eVertexBuffer | vk::BufferUsageFlagBits::eTransferDst, vk::MemoryPropertyFlagBits::eDeviceLocal);
     
-    copyBuffer(stagingBuffer, vertexBuffer, bufferSize);
+    copyBuffer(stagingBuffer, mesh.vertexBuffer, bufferSize);
 }
 
-void Renderer3D::createIndexBuffer(std::vector<uint32_t> indices)
+void Renderer3D::createIndexBuffer(Mesh& mesh)
 {
-    vk::DeviceSize bufferSize = sizeof(indices[0]) * indices.size();
+    vk::DeviceSize bufferSize = sizeof(mesh.indices[0]) * mesh.indices.size();
     
     auto [stagingBuffer, stagingBufferMemory] = createBuffer(bufferSize, vk::BufferUsageFlagBits::eTransferSrc, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent);
     
     void *data = stagingBufferMemory.mapMemory(0, bufferSize);
-    memcpy(data, indices.data(), bufferSize);
+    memcpy(data, mesh.indices.data(), bufferSize);
     stagingBufferMemory.unmapMemory();
     
-    std::tie(indexBuffer, indexBufferMemory) = createBuffer(bufferSize, vk::BufferUsageFlagBits::eIndexBuffer | vk::BufferUsageFlagBits::eTransferDst, vk::MemoryPropertyFlagBits::eDeviceLocal);
+    std::tie(mesh.indexBuffer, mesh.indexBufferMemory) = createBuffer(bufferSize, vk::BufferUsageFlagBits::eIndexBuffer | vk::BufferUsageFlagBits::eTransferDst, vk::MemoryPropertyFlagBits::eDeviceLocal);
     
-    copyBuffer(stagingBuffer, indexBuffer, bufferSize);
+    copyBuffer(stagingBuffer, mesh.indexBuffer, bufferSize);
 }
 
 void Renderer3D::createUniformBuffers(size_t UBOSize)
@@ -931,7 +931,7 @@ void Renderer3D::transitionImageLayout(vk::Image image, vk::ImageLayout oldLayou
     commandBuffers[frameIndex].pipelineBarrier2(dependencyInfo);
 }
 
-void Renderer3D::recordCommandBuffer(uint32_t imageIndex, uint32_t numIndices)
+void Renderer3D::recordCommandBuffer(uint32_t imageIndex)
 {
 
     commandBuffers[frameIndex].begin({}); //None of the values we could want are relevant to us, so we just don't set any of them
@@ -991,14 +991,18 @@ void Renderer3D::recordCommandBuffer(uint32_t imageIndex, uint32_t numIndices)
 
     commandBuffers[frameIndex].beginRendering(renderingInfo);
     commandBuffers[frameIndex].bindPipeline(vk::PipelineBindPoint::eGraphics, *graphicsPipeline);
-    commandBuffers[frameIndex].bindVertexBuffers(0, *vertexBuffer, {0});
-    commandBuffers[frameIndex].bindIndexBuffer(*indexBuffer, 0, vk::IndexType::eUint32);
     commandBuffers[frameIndex].bindDescriptorSets(vk::PipelineBindPoint::eGraphics, pipelineLayout, 0, *descriptorSets[frameIndex], nullptr);
-
+    
+    
     //Since we set the viewport and the scissor to be dynamic, here's where we set those values
     commandBuffers[frameIndex].setViewport(0, vk::Viewport(0.0f, 0.0f, static_cast<float>(swapChainExtent.width), static_cast<float>(swapChainExtent.height), 0.0f, 1.0f));
     commandBuffers[frameIndex].setScissor(0, vk::Rect2D(vk::Offset2D(0, 0), swapChainExtent));
-    commandBuffers[frameIndex].drawIndexed(numIndices, 1, 0, 0, 0);
+    for(Model model : renderingObjects)
+    {
+        commandBuffers[frameIndex].bindVertexBuffers(0, *model.mesh.vertexBuffer, {0});
+        commandBuffers[frameIndex].bindIndexBuffer(*model.mesh.indexBuffer, 0, vk::IndexType::eUint32);
+        commandBuffers[frameIndex].drawIndexed(model.mesh.indices.size(), 1, 0, 0, 0);
+    }
     commandBuffers[frameIndex].endRendering();
 
     //After rendering, we need to transition the image layout back to vk::ImageLayout::ePresentSrcKHR so it can be presented to the screen
@@ -1028,7 +1032,7 @@ void Renderer3D::fetchNewImage(Window& showWindow, Camera cam)
 
     logicalDevice.resetFences(*inFlightFences[frameIndex]);
 
-    recordCommandBuffer(imageIndex, static_cast<uint32_t>(indices.size()));
+    recordCommandBuffer(imageIndex);
     
     vk::PipelineStageFlags waitDestinationStageMask(vk::PipelineStageFlagBits::eColorAttachmentOutput);
     vk::SubmitInfo submitInfo;
@@ -1143,11 +1147,11 @@ std::pair<vk::raii::Image, vk::raii::DeviceMemory> Renderer3D::createImage(uint3
     return {std::move(image), std::move(imageMemory)};
 }
 
-void Renderer3D::loadModel(Mesh mesh)
+/*void Renderer3D::loadModel(Mesh mesh)
 {
     vertices = mesh.vertices;
     indices = mesh.indices;
-}
+}*/
 
 void Renderer3D::createDepthResources()
 {
@@ -1156,6 +1160,11 @@ void Renderer3D::createDepthResources()
     std::tie(depthImage, depthImageMemory) = createImage(swapChainExtent.width, swapChainExtent.height, depthFormat, vk::ImageTiling::eOptimal, vk::ImageUsageFlagBits::eDepthStencilAttachment, vk::MemoryPropertyFlagBits::eDeviceLocal);
     depthImageView = createImageView(depthImage, depthFormat, vk::ImageAspectFlagBits::eDepth);
 
+}
+
+void Renderer3D::drawModel(Model model)
+{
+    renderingObjects.push_back(model);
 }
 
 void Renderer3D::createGraphicsPipeline(const std::string& vertShaderPath, const char* vertStartpoint, const std::string& fragShaderPath, const char* fragStartpoint)
@@ -1292,8 +1301,11 @@ void Renderer3D::createGraphicsPipeline(const std::string& vertShaderPath, const
 
 void Renderer3D::createBuffers()
 {
-    createVertexBuffer(vertices);
-    createIndexBuffer(indices);
+    for(Model model : renderingObjects)
+    {
+        createVertexBuffer(model.mesh);
+        createIndexBuffer(model.mesh);
+    }
     createUniformBuffers(sizeof(UniformBufferObject));
 }
 

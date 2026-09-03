@@ -27,7 +27,6 @@ Mesh::Mesh(std::string meshFile)
     getData(meshFile);
 }
 
-Mesh::Mesh() {}
 
 void Mesh::getData(std::string meshFile)
 {

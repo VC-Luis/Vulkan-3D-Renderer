@@ -15,9 +15,9 @@ add_library(Renderer3D STATIC
     src/vertex.cpp 
     src/camera.cpp
     src/mesh.cpp
+    src/model.cpp
     include/stb_image.h 
     include/tiny_obj_loader.h
-    src/model.cpp
 )
 
 target_include_directories(Renderer3D PUBLIC ${PROJECT_SOURCE_DIR}/include ${CMAKE_CURRENT_BINARY_DIR})

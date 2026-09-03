@@ -44,10 +44,15 @@ int main(int argc, char const *argv[])
     renderer.createDepthResources();
     renderer.generateCommandInfrastructure();
 
-     renderer.createGraphicsPipeline("assets/shader.spv", "vertMain", "assets/shader.spv", "fragMain");
+    renderer.createGraphicsPipeline("assets/shader.spv", "vertMain", "assets/shader.spv", "fragMain");
 
     Mesh shipMesh("assets/ship-large.obj");
-    renderer.loadModel(shipMesh);
+    Model boatTestModel(shipMesh, glm::vec3(0.0f, 0.0f, 0.0f), glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+    renderer.drawModel(boatTestModel);
+
+    Mesh oceanLinerMesh("assets/ship-ocean-liner.obj");
+    Model oceanModel(oceanLinerMesh, glm::vec3(0.0f, 0.0f, 0.0f), glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+    renderer.drawModel(oceanModel);
 
     renderer.createBuffers();
 

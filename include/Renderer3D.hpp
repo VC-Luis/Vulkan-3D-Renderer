@@ -5,6 +5,7 @@
 #include "vertex.hpp"
 #include "camera.hpp"
 #include "mesh.hpp"
+#include "model.hpp"
 
 #ifndef RENDERER3D_H
 #define RENDERER3D_H
@@ -42,6 +43,8 @@ public:
 
     void cleanUpSwapchain();
 
+    void drawModel(Model model);
+
     void createInstance(std::string engineName, Window& showWindow, bool enableValidationLayers, EngineVersion version);
     void setupDebugMessenger(bool enableValidationLayers);
     void createSurface(Window& window);
@@ -52,9 +55,9 @@ public:
     void createDescriptorSetLayout();
     void createGraphicsPipeline(const std::string& vertShaderPath, const char* vertStartpoint, const std::string& fragShaderPath, const char* fragStartpoint);
     void createCommandPool();
-    void loadModel(Mesh mesh);
-    void createVertexBuffer(std::vector<Vertex> vertices);
-    void createIndexBuffer(std::vector<uint32_t> indices);
+    //void loadModel(Mesh mesh);
+    void createVertexBuffer(Mesh& mesh);
+    void createIndexBuffer(Mesh& mesh);
     void createUniformBuffers(size_t UBOSize);
     void createDescriptorPool();
     void createDescriptorSets(size_t UBOSize);
@@ -67,7 +70,7 @@ public:
 
     int MAX_FRAMES_IN_FLIGHT = 2;
 
-private:
+//private:
 
     vk::Extent2D chooseSwapExtent(vk::SurfaceCapabilitiesKHR const& capabilities, Window& window);
     [[nodiscard]] vk::raii::ShaderModule createShaderModule(const std::vector<char>& code) const;
@@ -76,7 +79,7 @@ private:
     void copyBuffer(vk::raii::Buffer & srcBuffer, vk::raii::Buffer & dstBuffer, vk::DeviceSize size);
     void recreateSwapchain(Window& showWindow);
     void updateUniformBuffer(uint32_t currentImage, Camera cam);
-    void recordCommandBuffer(uint32_t imageIndex, uint32_t numIndices);
+    void recordCommandBuffer(uint32_t imageIndex);
     void transitionImageLayout(vk::Image image, vk::ImageLayout oldLayout, vk::ImageLayout newLayout, vk::AccessFlags2 srcAccessMask, vk::AccessFlags2 dstAccessMask, vk::PipelineStageFlags2 srcStageMask, vk::PipelineStageFlags2 dstStageMask, vk::ImageAspectFlags imageAspectFlags);
     std::pair<vk::raii::Image, vk::raii::DeviceMemory> createImage(uint32_t width, uint32_t height, vk::Format format, vk::ImageTiling tiling, vk::ImageUsageFlags usage, vk::MemoryPropertyFlags properties);
     vk::raii::CommandBuffer beginSingleTimeCommands();
@@ -118,14 +121,16 @@ private:
 
     uint32_t frameIndex = 0;
     bool framebufferResized = false;
+    
+    std::vector<Model> renderingObjects;
+    
+    //std::vector<Vertex> vertices;
+    //vk::raii::Buffer vertexBuffer = nullptr;
+    //vk::raii::DeviceMemory vertexBufferMemory = nullptr;
 
-    std::vector<Vertex> vertices;
-    vk::raii::Buffer vertexBuffer = nullptr;
-    vk::raii::DeviceMemory vertexBufferMemory = nullptr;
-
-    std::vector<uint32_t> indices;
-    vk::raii::Buffer indexBuffer = nullptr;
-    vk::raii::DeviceMemory indexBufferMemory = nullptr;
+    //std::vector<uint32_t> indices;
+    //vk::raii::Buffer indexBuffer = nullptr;
+    //vk::raii::DeviceMemory indexBufferMemory = nullptr;
 
     std::vector<vk::raii::Buffer> uniformBuffers;
     std::vector<vk::raii::DeviceMemory> uniformBuffersMemory;
@@ -142,6 +147,7 @@ private:
     vk::raii::Image depthImage = nullptr;
     vk::raii::DeviceMemory depthImageMemory = nullptr;
     vk::raii::ImageView depthImageView = nullptr;
+
 };
 
 #endif

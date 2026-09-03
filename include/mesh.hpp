@@ -11,10 +11,20 @@ public:
 
     Mesh(std::vector<Vertex> meshVertices, std::vector<uint32_t> meshIndices);
     Mesh(std::string meshFile);
-    Mesh();
 
     void getData(std::string meshFile);
-    void drawMesh();
+
+
+    vk::raii::Buffer vertexBuffer = nullptr;
+    vk::raii::DeviceMemory vertexBufferMemory = nullptr;
+
+    vk::raii::Buffer indexBuffer = nullptr;
+    vk::raii::DeviceMemory indexBufferMemory = nullptr;
+
+
+    Mesh& operator=(const Mesh&) = delete;
+
+    Mesh& operator=(Mesh&&) noexcept = default;
 };
 
 #endif
