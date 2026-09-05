@@ -67,7 +67,7 @@ struct Vertex
 
 //The uniform buffer object will be used to send frequently changing values to shaders 
 //(also, using GLM allows us to just do a memcpy because its binary-compatible with the shader types)
-struct UniformBufferObject
+struct CameraUBO
 {
     glm::mat4 modelMatrix;
     glm::mat4 viewMatrix;
@@ -303,7 +303,7 @@ private:
             vk::DescriptorBufferInfo bufferInfo;
             bufferInfo.buffer = uniformBuffers[i];
             bufferInfo.offset = 0;
-            bufferInfo.range = sizeof(UniformBufferObject);
+            bufferInfo.range = sizeof(CameraUBO);
 
             vk::WriteDescriptorSet descriptorWrite;
             descriptorWrite.dstSet = descriptorSets[i];
@@ -336,7 +336,7 @@ private:
     {
         for(size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
         {
-            vk::DeviceSize bufferSize = sizeof(UniformBufferObject);
+            vk::DeviceSize bufferSize = sizeof(CameraUBO);
 
             auto [buffer, bufferMemory] = createBuffer(bufferSize, vk::BufferUsageFlagBits::eUniformBuffer, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent);
 
@@ -1081,7 +1081,7 @@ private:
         auto currentTime = std::chrono::high_resolution_clock::now();
         float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
 
-        UniformBufferObject UBO;
+        CameraUBO UBO;
         UBO.modelMatrix = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
         UBO.viewMatrix = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
         UBO.projectionMatrix = glm::perspective(glm::radians(45.0f), static_cast<float>(swapChainExtent.width) / static_cast<float>(swapChainExtent.height), 0.1f, 10.0f);

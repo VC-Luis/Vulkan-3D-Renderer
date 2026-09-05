@@ -880,8 +880,7 @@ void Renderer3D::updateUniformBuffer(uint32_t currentImage, Camera cam)
     auto currentTime = std::chrono::steady_clock::now();
     float time = std::chrono::duration<float>(currentTime - startTime).count();
 
-    UniformBufferObject UBO;
-    UBO.modelMatrix = glm::rotate(glm::mat4(1.0f), glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+    CameraUBO UBO;
     UBO.viewMatrix = glm::lookAt(cam.position, cam.position + cam.direction, glm::vec3(0.0f, 0.0f, 1.0f));
     UBO.projectionMatrix = glm::perspective(glm::radians(cam.fov), static_cast<float>(swapChainExtent.width) / static_cast<float>(swapChainExtent.height), cam.nearPlane, cam.farPlane);
     UBO.projectionMatrix[1][1] *= -1.0f;
@@ -993,16 +992,23 @@ void Renderer3D::recordCommandBuffer(uint32_t imageIndex)
     commandBuffers[frameIndex].bindPipeline(vk::PipelineBindPoint::eGraphics, *graphicsPipeline);
     commandBuffers[frameIndex].bindDescriptorSets(vk::PipelineBindPoint::eGraphics, pipelineLayout, 0, *descriptorSets[frameIndex], nullptr);
     
-    
     //Since we set the viewport and the scissor to be dynamic, here's where we set those values
     commandBuffers[frameIndex].setViewport(0, vk::Viewport(0.0f, 0.0f, static_cast<float>(swapChainExtent.width), static_cast<float>(swapChainExtent.height), 0.0f, 1.0f));
     commandBuffers[frameIndex].setScissor(0, vk::Rect2D(vk::Offset2D(0, 0), swapChainExtent));
+    
     for(Model model : renderingObjects)
     {
         commandBuffers[frameIndex].bindVertexBuffers(0, *model.mesh.vertexBuffer, {0});
         commandBuffers[frameIndex].bindIndexBuffer(*model.mesh.indexBuffer, 0, vk::IndexType::eUint32);
+
+        glm::mat4 modelMatrix = glm::mat4(1.0f);
+        modelMatrix = glm::rotate(modelMatrix, model.rotationAngle, model.rotationVector);
+        modelMatrix = glm::translate(modelMatrix, model.position);
+
+        commandBuffers[frameIndex].pushConstants(pipelineLayout, vk::ShaderStageFlagBits::eVertex, 0, sizeof(modelMatrix), &modelMatrix);
         commandBuffers[frameIndex].drawIndexed(model.mesh.indices.size(), 1, 0, 0, 0);
     }
+
     commandBuffers[frameIndex].endRendering();
 
     //After rendering, we need to transition the image layout back to vk::ImageLayout::ePresentSrcKHR so it can be presented to the screen
@@ -1261,11 +1267,17 @@ void Renderer3D::createGraphicsPipeline(const std::string& vertShaderPath, const
     colorBlendingInfo.attachmentCount = 1;
     colorBlendingInfo.pAttachments = &colorBlendAttachment;
 
+    vk::PushConstantRange pushConstantRange;
+    pushConstantRange.stageFlags = vk::ShaderStageFlagBits::eVertex;
+    pushConstantRange.offset = 0;
+    pushConstantRange.size = sizeof(glm::mat4);
+
     //Finally, we define the pipeline layout
     vk::PipelineLayoutCreateInfo pipelineLayoutInfo;
     pipelineLayoutInfo.setLayoutCount = 1;
     pipelineLayoutInfo.pSetLayouts = &*descriptorSetLayout;
-    pipelineLayoutInfo.pushConstantRangeCount = 0;
+    pipelineLayoutInfo.pPushConstantRanges = &pushConstantRange;
+    pipelineLayoutInfo.pushConstantRangeCount = 1;
 
     pipelineLayout = vk::raii::PipelineLayout(logicalDevice, pipelineLayoutInfo);
 
@@ -1306,7 +1318,7 @@ void Renderer3D::createBuffers()
         createVertexBuffer(model.mesh);
         createIndexBuffer(model.mesh);
     }
-    createUniformBuffers(sizeof(UniformBufferObject));
+    createUniformBuffers(sizeof(CameraUBO));
 }
 
 void Renderer3D::createDescriptors(size_t UBOSize)

@@ -14,6 +14,8 @@ public:
     glm::vec3 rotationVector;
 
     Model(Mesh& modelMesh, glm::vec3 modelPosition, float modelRotationAngle, glm::vec3 modelRotationVector);
+
+    glm::mat4 modelMatrix;
 };
 
 #endif

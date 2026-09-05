@@ -17,9 +17,8 @@ struct EngineVersion
     uint32_t patch;
 };
 
-struct UniformBufferObject
+struct CameraUBO
 {
-    glm::mat4 modelMatrix;
     glm::mat4 viewMatrix;
     glm::mat4 projectionMatrix;
 };

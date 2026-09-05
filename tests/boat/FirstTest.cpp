@@ -4,6 +4,19 @@
 #include <camera.hpp>
 #include "../include/mesh.hpp"
 
+#include <chrono>
+
+#define RESET   "\033[0m"
+#define RED     "\033[31m"
+#define GREEN   "\033[32m"
+#define YELLOW  "\033[33m"
+#define BLUE    "\033[34m"
+#define BOLD    "\033[1m"
+#define UNDERLINE "\033[4m"
+#define BRIGHT_RED "\033[91m"
+#define BRIGHT_YELLOW "\33[93m"
+#define BRIGHT_WHITE "\033[97m"
+
 Camera cam(glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f), 60.0f, 1.0f, 90.0f, 0.1f, 0.1f, 1000.0f);
 bool firstMouse = true;
 Window window(800, 600, "3D Renderer Test");
@@ -51,14 +64,14 @@ int main(int argc, char const *argv[])
     renderer.drawModel(boatTestModel);
 
     Mesh oceanLinerMesh("assets/ship-ocean-liner.obj");
-    Model oceanModel(oceanLinerMesh, glm::vec3(0.0f, 0.0f, 0.0f), glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+    Model oceanModel(oceanLinerMesh, glm::vec3(0.0f, 10.0f, 0.0f), glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
     renderer.drawModel(oceanModel);
 
     renderer.createBuffers();
 
     renderer.loadTexture("assets/colormap.png");
 
-    renderer.createDescriptors(sizeof(UniformBufferObject));
+    renderer.createDescriptors(sizeof(CameraUBO));
     renderer.createSyncObjects();
 
     while(!window.windowShouldClose())

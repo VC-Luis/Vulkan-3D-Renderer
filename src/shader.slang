@@ -14,19 +14,29 @@ struct VSOutput
 
 struct UniformBuffer
 {
-    float4x4 modelMatrix;
     float4x4 viewMatrix;
     float4x4 projectionMatrix;
 };
 
+struct PushConstants
+{
+    float4x4 modelMatrix;
+};
+
+[vk::push_constant]
+ConstantBuffer<PushConstants> pushConstants;
+
+[vk_binding(0, 0)]
 ConstantBuffer<UniformBuffer> UBO;
+[vk_binding(1, 0)]
 Sampler2D texture;
+
 
 [shader("vertex")]
 VSOutput vertMain(VSInput input)
 {
     VSOutput output;
-    output.pos = mul(UBO.projectionMatrix, mul(UBO.viewMatrix, mul(UBO.modelMatrix, float4(input.inPosition, 1.0))));
+    output.pos = mul(UBO.projectionMatrix, mul(UBO.viewMatrix, mul(pushConstants.modelMatrix, float4(input.inPosition, 1.0))));
     output.fragColor = input.inColor;
     output.fragTexCoord = input.inTexCoord;
     return output;
