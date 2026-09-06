@@ -60,7 +60,7 @@ int main(int argc, char const *argv[])
     renderer.createGraphicsPipeline("assets/shader.spv", "vertMain", "assets/shader.spv", "fragMain");
 
     Mesh shipMesh("assets/ship-large.obj");
-    Model boatTestModel(shipMesh, glm::vec3(0.0f, 0.0f, 0.0f), glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+    Model boatTestModel(shipMesh, glm::vec3(0.0f, 0.0f, 0.0f), glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
     renderer.drawModel(&boatTestModel);
 
     Mesh oceanLinerMesh("assets/ship-ocean-liner.obj");
@@ -85,7 +85,7 @@ int main(int argc, char const *argv[])
         angle += 0.01;
 
         boatTestModel.rotationAngle += 0.01f;
-        boatTestModel.position += glm::vec3{0.0f, 0.0f, sin(angle) * 0.1f};
+        boatTestModel.position = glm::vec3{0.0f, 0.0f, sin(angle) * 10};
 
         if(glfwGetKey(window.GLWindow, GLFW_KEY_W) == GLFW_PRESS)
         {

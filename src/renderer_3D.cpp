@@ -1002,8 +1002,8 @@ void Renderer3D::recordCommandBuffer(uint32_t imageIndex)
         commandBuffers[frameIndex].bindIndexBuffer(*renderingObjects[i]->mesh.indexBuffer, 0, vk::IndexType::eUint32);
 
         glm::mat4 modelMatrix = glm::mat4(1.0f);
-        modelMatrix = glm::rotate(modelMatrix, renderingObjects[i]->rotationAngle, renderingObjects[i]->rotationVector);
         modelMatrix = glm::translate(modelMatrix, renderingObjects[i]->position);
+        modelMatrix = glm::rotate(modelMatrix, renderingObjects[i]->rotationAngle, renderingObjects[i]->rotationVector);
 
         commandBuffers[frameIndex].pushConstants(pipelineLayout, vk::ShaderStageFlagBits::eVertex, 0, sizeof(modelMatrix), &modelMatrix);
         commandBuffers[frameIndex].drawIndexed(renderingObjects[i]->mesh.indices.size(), 1, 0, 0, 0);
