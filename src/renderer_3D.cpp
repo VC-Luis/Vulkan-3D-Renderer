@@ -373,12 +373,12 @@ vk::raii::ImageView Renderer3D::createImageView(vk::Image const &image, vk::Form
     return vk::raii::ImageView(logicalDevice, imageViewInfo);
 }
 
-void Renderer3D::createTextureImageView()
+void Renderer3D::createTextureImageView(Texture& texture)
 {
-    textureImageView = createImageView(*textureImage, vk::Format::eR8G8B8A8Srgb, vk::ImageAspectFlagBits::eColor);
+    texture.textureImageView = createImageView(*texture.textureImage, vk::Format::eR8G8B8A8Srgb, vk::ImageAspectFlagBits::eColor);
 }
 
-void Renderer3D::createTextureSampler()
+void Renderer3D::createTextureSampler(Texture& texture)
 {
     vk::PhysicalDeviceProperties properties = physicalDevice.getProperties();
 
@@ -398,7 +398,7 @@ void Renderer3D::createTextureSampler()
     samplerInfo.minLod = 0.0f;
     samplerInfo.maxLod = 0.0f;
 
-    textureSampler = vk::raii::Sampler(logicalDevice, samplerInfo);
+    texture.textureSampler = vk::raii::Sampler(logicalDevice, samplerInfo);
 }
 
 //Firstly, we need to create the Vulkan instance, the connection between this application and the Vulkan library
@@ -786,7 +786,7 @@ void Renderer3D::createDescriptorPool()
     descriptorPool = vk::raii::DescriptorPool(logicalDevice, poolInfo);
 }
 
-void Renderer3D::createDescriptorSets(size_t UBOSize)
+void Renderer3D::createDescriptorSets(size_t UBOSize, Texture& texture)
 {
     std::vector<vk::DescriptorSetLayout> layouts(MAX_FRAMES_IN_FLIGHT, *descriptorSetLayout);
     
@@ -806,8 +806,8 @@ void Renderer3D::createDescriptorSets(size_t UBOSize)
         bufferInfo.range = UBOSize;
 
         vk::DescriptorImageInfo imageInfo;
-        imageInfo.sampler = textureSampler;
-        imageInfo.imageView = textureImageView;
+        imageInfo.sampler = texture.textureSampler;
+        imageInfo.imageView = texture.textureImageView;
         imageInfo.imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
 
         vk::WriteDescriptorSet descriptorWriteBuffer;
@@ -1097,33 +1097,23 @@ void Renderer3D::generateCommandInfrastructure()
     createCommandBuffers();
 }
 
-void Renderer3D::createTextureImage(std::string textureFile)
+void Renderer3D::createTextureImage(Texture& texture)
 {
-    //First, we load the image
-    int texWidth, texHeight, texChannels;
-    stbi_uc* pixels = stbi_load(textureFile.c_str(), &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
-    vk::DeviceSize imageSize = texWidth * texHeight * 4;
-
-    if(!pixels)
-    {
-        throw std::runtime_error("Failed to load texture image!");
-    }
-
-    //After that, we need to send the image over to the GPU with a staging buffer
-    auto [stagingBuffer, stagingBufferMemory] = createBuffer(imageSize, vk::BufferUsageFlagBits::eTransferSrc, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent);
-    void* data = stagingBufferMemory.mapMemory(0, imageSize);
-    memcpy(data, pixels, imageSize);
+    //First, we need to send the image over to the GPU with a staging buffer
+    auto [stagingBuffer, stagingBufferMemory] = createBuffer(texture.imageSize, vk::BufferUsageFlagBits::eTransferSrc, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent);
+    void* data = stagingBufferMemory.mapMemory(0, texture.imageSize);
+    memcpy(data, texture.imageData, texture.imageSize);
     stagingBufferMemory.unmapMemory();
 
-    stbi_image_free(pixels);
+    stbi_image_free(texture.imageData);
 
     //Now we can create the Vulkan image objects
-    std::tie(textureImage, textureImageMemory) = createImage(texWidth, texHeight, vk::Format::eR8G8B8A8Srgb, vk::ImageTiling::eOptimal, vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled, vk::MemoryPropertyFlagBits::eDeviceLocal);
+    std::tie(texture.textureImage, texture.textureImageMemory) = createImage(texture.textureWidth, texture.textureHeight, vk::Format::eR8G8B8A8Srgb, vk::ImageTiling::eOptimal, vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled, vk::MemoryPropertyFlagBits::eDeviceLocal);
 
     vk::raii::CommandBuffer commandBuffer = beginSingleTimeCommands();
-    transitionLoadedImageLayout(commandBuffer, textureImage, vk::ImageLayout::eUndefined, vk::ImageLayout::eTransferDstOptimal);
-    copyBufferToImage(commandBuffer, stagingBuffer, textureImage, static_cast<uint32_t>(texWidth), static_cast<uint32_t>(texHeight));
-    transitionLoadedImageLayout(commandBuffer, textureImage, vk::ImageLayout::eTransferDstOptimal, vk::ImageLayout::eShaderReadOnlyOptimal);
+    transitionLoadedImageLayout(commandBuffer, texture.textureImage, vk::ImageLayout::eUndefined, vk::ImageLayout::eTransferDstOptimal);
+    copyBufferToImage(commandBuffer, stagingBuffer, texture.textureImage, static_cast<uint32_t>(texture.textureWidth), static_cast<uint32_t>(texture.textureHeight));
+    transitionLoadedImageLayout(commandBuffer, texture.textureImage, vk::ImageLayout::eTransferDstOptimal, vk::ImageLayout::eShaderReadOnlyOptimal);
     endSingleTimeCommands(std::move(commandBuffer));
 }
 
@@ -1321,10 +1311,10 @@ void Renderer3D::createBuffers()
     createUniformBuffers(sizeof(CameraUBO));
 }
 
-void Renderer3D::createDescriptors(size_t UBOSize)
+void Renderer3D::createDescriptors(size_t UBOSize, Texture& texture)
 {
     createDescriptorPool();
-    createDescriptorSets(UBOSize);
+    createDescriptorSets(UBOSize, texture);
 }
 
 void Renderer3D::cleanUpSwapchain()
@@ -1335,9 +1325,9 @@ void Renderer3D::cleanUpSwapchain()
     swapChain = nullptr;
 }
 
-void Renderer3D::loadTexture(std::string texturePath)
+void Renderer3D::loadTexture(Texture& texture)
 {
-    createTextureImage(texturePath);
-    createTextureImageView();
-    createTextureSampler();
+    createTextureImage(texture);
+    createTextureImageView(texture);
+    createTextureSampler(texture);
 }

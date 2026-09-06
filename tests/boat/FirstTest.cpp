@@ -60,7 +60,7 @@ int main(int argc, char const *argv[])
     renderer.createGraphicsPipeline("assets/shader.spv", "vertMain", "assets/shader.spv", "fragMain");
 
     Mesh shipMesh("assets/ship-large.obj");
-    Model boatTestModel(shipMesh, glm::vec3(0.0f, 0.0f, 0.0f), glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+    Model boatTestModel(shipMesh, glm::vec3(0.0f, 0.0f, 0.0f), glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
     renderer.drawModel(&boatTestModel);
 
     Mesh oceanLinerMesh("assets/ship-ocean-liner.obj");
@@ -69,19 +69,23 @@ int main(int argc, char const *argv[])
 
     renderer.createBuffers();
 
-    renderer.loadTexture("assets/colormap.png");
+    Texture boatTexture("assets/colormap.png");
+    renderer.loadTexture(boatTexture);
 
-    renderer.createDescriptors(sizeof(CameraUBO));
+    renderer.createDescriptors(sizeof(CameraUBO), boatTexture);
     renderer.createSyncObjects();
 
-    std::chrono::seconds deltaTime;
+    double angle = 0;
+
 
     while(!window.windowShouldClose())
     {
-        auto frameStart = std::chrono::steady_clock::now();
         cam.updateCameraParameters();
 
-        boatTestModel.rotationAngle += 1e-3;
+        angle += 0.01;
+
+        boatTestModel.rotationAngle += 0.01f;
+        boatTestModel.position += glm::vec3{0.0f, 0.0f, sin(angle) * 0.1f};
 
         if(glfwGetKey(window.GLWindow, GLFW_KEY_W) == GLFW_PRESS)
         {
@@ -113,10 +117,6 @@ int main(int argc, char const *argv[])
 
         //After that, we fetch the next image from the swap chain
         renderer.fetchNewImage(window, cam);
-
-        auto endFrame = std::chrono::steady_clock::now();
-        auto deltaTime = std::chrono::duration_cast<std::chrono::nanoseconds>(endFrame - frameStart);
-        std::cout << "FRAMERATE: " << BRIGHT_WHITE << 1.0e9f/deltaTime.count() << RESET << " FPS" << std::endl;
     }
 
     std::cout << "RENDERING OVER" << std::endl;

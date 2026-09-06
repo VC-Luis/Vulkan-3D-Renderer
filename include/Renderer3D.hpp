@@ -6,6 +6,7 @@
 #include "camera.hpp"
 #include "mesh.hpp"
 #include "model.hpp"
+#include "texture.hpp"
 
 #ifndef RENDERER3D_H
 #define RENDERER3D_H
@@ -33,9 +34,9 @@ public:
     void generateImageManagement(Window& showWindow);
     void generateCommandInfrastructure();
     void createBuffers();
-    void createDescriptors(size_t UBOSize);
+    void createDescriptors(size_t UBOSize, Texture& texture);
 
-    void loadTexture(std::string texturePath);
+    void loadTexture(Texture& texture);
 
     void waitForFrame();
     void fetchNewImage(Window& showWindow, Camera cam);
@@ -59,12 +60,12 @@ public:
     void createIndexBuffer(Mesh& mesh);
     void createUniformBuffers(size_t UBOSize);
     void createDescriptorPool();
-    void createDescriptorSets(size_t UBOSize);
+    void createDescriptorSets(size_t UBOSize, Texture& texture);
     void createCommandBuffers();
     void createSyncObjects();
-    void createTextureImage(std::string textureFile);
-    void createTextureImageView();
-    void createTextureSampler();
+    void createTextureImage(Texture& texture);
+    void createTextureImageView(Texture& texture);
+    void createTextureSampler(Texture& texture);
     void createDepthResources();
 
     int MAX_FRAMES_IN_FLIGHT = 2;
@@ -138,10 +139,10 @@ public:
     vk::raii::DescriptorPool descriptorPool = nullptr;
     std::vector<vk::raii::DescriptorSet> descriptorSets;
 
-    vk::raii::Image textureImage = nullptr;
-    vk::raii::DeviceMemory textureImageMemory = nullptr;
-    vk::raii::ImageView textureImageView = nullptr;
-    vk::raii::Sampler textureSampler = nullptr;
+    //vk::raii::Image textureImage = nullptr;
+    //vk::raii::DeviceMemory textureImageMemory = nullptr;
+    //vk::raii::ImageView textureImageView = nullptr;
+    //vk::raii::Sampler textureSampler = nullptr;
 
     vk::raii::Image depthImage = nullptr;
     vk::raii::DeviceMemory depthImageMemory = nullptr;
