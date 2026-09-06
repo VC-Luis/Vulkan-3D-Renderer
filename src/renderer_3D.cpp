@@ -996,17 +996,17 @@ void Renderer3D::recordCommandBuffer(uint32_t imageIndex)
     commandBuffers[frameIndex].setViewport(0, vk::Viewport(0.0f, 0.0f, static_cast<float>(swapChainExtent.width), static_cast<float>(swapChainExtent.height), 0.0f, 1.0f));
     commandBuffers[frameIndex].setScissor(0, vk::Rect2D(vk::Offset2D(0, 0), swapChainExtent));
     
-    for(Model model : renderingObjects)
+    for(int i = 0; i < renderingObjects.size(); i++)
     {
-        commandBuffers[frameIndex].bindVertexBuffers(0, *model.mesh.vertexBuffer, {0});
-        commandBuffers[frameIndex].bindIndexBuffer(*model.mesh.indexBuffer, 0, vk::IndexType::eUint32);
+        commandBuffers[frameIndex].bindVertexBuffers(0, *renderingObjects[i]->mesh.vertexBuffer, {0});
+        commandBuffers[frameIndex].bindIndexBuffer(*renderingObjects[i]->mesh.indexBuffer, 0, vk::IndexType::eUint32);
 
         glm::mat4 modelMatrix = glm::mat4(1.0f);
-        modelMatrix = glm::rotate(modelMatrix, model.rotationAngle, model.rotationVector);
-        modelMatrix = glm::translate(modelMatrix, model.position);
+        modelMatrix = glm::rotate(modelMatrix, renderingObjects[i]->rotationAngle, renderingObjects[i]->rotationVector);
+        modelMatrix = glm::translate(modelMatrix, renderingObjects[i]->position);
 
         commandBuffers[frameIndex].pushConstants(pipelineLayout, vk::ShaderStageFlagBits::eVertex, 0, sizeof(modelMatrix), &modelMatrix);
-        commandBuffers[frameIndex].drawIndexed(model.mesh.indices.size(), 1, 0, 0, 0);
+        commandBuffers[frameIndex].drawIndexed(renderingObjects[i]->mesh.indices.size(), 1, 0, 0, 0);
     }
 
     commandBuffers[frameIndex].endRendering();
@@ -1168,7 +1168,7 @@ void Renderer3D::createDepthResources()
 
 }
 
-void Renderer3D::drawModel(Model model)
+void Renderer3D::drawModel(Model* model)
 {
     renderingObjects.push_back(model);
 }
@@ -1313,10 +1313,10 @@ void Renderer3D::createGraphicsPipeline(const std::string& vertShaderPath, const
 
 void Renderer3D::createBuffers()
 {
-    for(Model model : renderingObjects)
+    for(int i = 0; i < renderingObjects.size(); i++)
     {
-        createVertexBuffer(model.mesh);
-        createIndexBuffer(model.mesh);
+        createVertexBuffer(renderingObjects[i]->mesh);
+        createIndexBuffer(renderingObjects[i]->mesh);
     }
     createUniformBuffers(sizeof(CameraUBO));
 }

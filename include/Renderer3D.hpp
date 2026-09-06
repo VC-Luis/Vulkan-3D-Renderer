@@ -42,7 +42,7 @@ public:
 
     void cleanUpSwapchain();
 
-    void drawModel(Model model);
+    void drawModel(Model* model);
 
     void createInstance(std::string engineName, Window& showWindow, bool enableValidationLayers, EngineVersion version);
     void setupDebugMessenger(bool enableValidationLayers);
@@ -121,7 +121,7 @@ public:
     uint32_t frameIndex = 0;
     bool framebufferResized = false;
     
-    std::vector<Model> renderingObjects;
+    std::vector<Model*> renderingObjects;
     
     //std::vector<Vertex> vertices;
     //vk::raii::Buffer vertexBuffer = nullptr;
