@@ -33,7 +33,7 @@ add_test(
 
 add_dependencies(boat_test compile_shaders)
 
-set_target_properties(boat_test PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/tests/boat)
+set_target_properties(boat_test PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/tests/boat/bin)
 
 set_property(TARGET boat_test PROPERTY CXX_STANDARD 20)
 
