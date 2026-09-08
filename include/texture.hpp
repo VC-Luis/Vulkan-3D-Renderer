@@ -21,6 +21,8 @@ public:
     vk::raii::ImageView textureImageView = nullptr;
     vk::raii::Sampler textureSampler = nullptr;
 
+    std::vector<vk::raii::DescriptorSet> textureDescriptorSets;
+
     Texture(const Texture&) = delete;
     Texture& operator=(const Texture&) = delete;
 

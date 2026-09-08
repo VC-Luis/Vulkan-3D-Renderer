@@ -674,13 +674,13 @@ void Renderer3D::createDescriptorSetLayout()
     UBOLayoutBinding.descriptorCount = 1;
     UBOLayoutBinding.stageFlags = vk::ShaderStageFlagBits::eVertex;
 
-    vk::DescriptorSetLayoutBinding samplerLayoutBinding;
-    samplerLayoutBinding.binding = 1;
-    samplerLayoutBinding.descriptorType = vk::DescriptorType::eCombinedImageSampler;
-    samplerLayoutBinding.descriptorCount = 1;
-    samplerLayoutBinding.stageFlags = vk::ShaderStageFlagBits::eFragment;
+    //vk::DescriptorSetLayoutBinding samplerLayoutBinding;
+    //samplerLayoutBinding.binding = 1;
+    //samplerLayoutBinding.descriptorType = vk::DescriptorType::eCombinedImageSampler;
+    //samplerLayoutBinding.descriptorCount = 1;
+    //samplerLayoutBinding.stageFlags = vk::ShaderStageFlagBits::eFragment;
 
-    std::array<vk::DescriptorSetLayoutBinding, 2> bindings = {UBOLayoutBinding, samplerLayoutBinding};
+    std::array<vk::DescriptorSetLayoutBinding, 1> bindings = {UBOLayoutBinding};
 
     vk::DescriptorSetLayoutCreateInfo layoutInfo;
     layoutInfo.bindingCount = static_cast<uint32_t>(bindings.size());
@@ -771,11 +771,11 @@ void Renderer3D::createDescriptorPool()
     UBOPoolSize.type = vk::DescriptorType::eUniformBuffer;
     UBOPoolSize.descriptorCount = MAX_FRAMES_IN_FLIGHT;
 
-    vk::DescriptorPoolSize samplerPoolSize;
-    samplerPoolSize.type = vk::DescriptorType::eCombinedImageSampler;
-    samplerPoolSize.descriptorCount = MAX_FRAMES_IN_FLIGHT;
+    //vk::DescriptorPoolSize samplerPoolSize;
+    //samplerPoolSize.type = vk::DescriptorType::eCombinedImageSampler;
+    //samplerPoolSize.descriptorCount = MAX_FRAMES_IN_FLIGHT;
 
-    std::array<vk::DescriptorPoolSize, 2> poolSize = {UBOPoolSize, samplerPoolSize};
+    std::array<vk::DescriptorPoolSize, 1> poolSize = {UBOPoolSize};
     
     vk::DescriptorPoolCreateInfo poolInfo;
     poolInfo.flags = vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet;
@@ -786,7 +786,7 @@ void Renderer3D::createDescriptorPool()
     descriptorPool = vk::raii::DescriptorPool(logicalDevice, poolInfo);
 }
 
-void Renderer3D::createDescriptorSets(size_t UBOSize, Texture& texture)
+void Renderer3D::createDescriptorSets(size_t UBOSize)
 {
     std::vector<vk::DescriptorSetLayout> layouts(MAX_FRAMES_IN_FLIGHT, *descriptorSetLayout);
     
@@ -805,10 +805,10 @@ void Renderer3D::createDescriptorSets(size_t UBOSize, Texture& texture)
         bufferInfo.offset = 0;
         bufferInfo.range = UBOSize;
 
-        vk::DescriptorImageInfo imageInfo;
-        imageInfo.sampler = texture.textureSampler;
-        imageInfo.imageView = texture.textureImageView;
-        imageInfo.imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
+        //vk::DescriptorImageInfo imageInfo;
+        //imageInfo.sampler = texture.textureSampler;
+        //imageInfo.imageView = texture.textureImageView;
+        //imageInfo.imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
 
         vk::WriteDescriptorSet descriptorWriteBuffer;
         descriptorWriteBuffer.dstSet = descriptorSets[i];
@@ -818,15 +818,15 @@ void Renderer3D::createDescriptorSets(size_t UBOSize, Texture& texture)
         descriptorWriteBuffer.descriptorType = vk::DescriptorType::eUniformBuffer;
         descriptorWriteBuffer.pBufferInfo = &bufferInfo;
 
-        vk::WriteDescriptorSet descriptorWriteImage;
-        descriptorWriteImage.dstSet = descriptorSets[i];
-        descriptorWriteImage.dstBinding = 1;
-        descriptorWriteImage.dstArrayElement = 0;
-        descriptorWriteImage.descriptorCount = 1;
-        descriptorWriteImage.descriptorType = vk::DescriptorType::eCombinedImageSampler;
-        descriptorWriteImage.pImageInfo = &imageInfo;
+        //vk::WriteDescriptorSet descriptorWriteImage;
+        //descriptorWriteImage.dstSet = descriptorSets[i];
+        //descriptorWriteImage.dstBinding = 1;
+        //descriptorWriteImage.dstArrayElement = 0;
+        //descriptorWriteImage.descriptorCount = 1;
+        //descriptorWriteImage.descriptorType = vk::DescriptorType::eCombinedImageSampler;
+        //descriptorWriteImage.pImageInfo = &imageInfo;
 
-        std::array<vk::WriteDescriptorSet, 2> descriptorWrites = {descriptorWriteBuffer, descriptorWriteImage};
+        std::array<vk::WriteDescriptorSet, 1> descriptorWrites = {descriptorWriteBuffer};
         
         logicalDevice.updateDescriptorSets(descriptorWrites, {});
     }
@@ -1000,6 +1000,7 @@ void Renderer3D::recordCommandBuffer(uint32_t imageIndex)
     {
         commandBuffers[frameIndex].bindVertexBuffers(0, *renderingObjects[i]->mesh.vertexBuffer, {0});
         commandBuffers[frameIndex].bindIndexBuffer(*renderingObjects[i]->mesh.indexBuffer, 0, vk::IndexType::eUint32);
+        commandBuffers[frameIndex].bindDescriptorSets(vk::PipelineBindPoint::eGraphics, pipelineLayout, 1, *renderingObjects[i]->texture.textureDescriptorSets[frameIndex], nullptr);
 
         glm::mat4 modelMatrix = glm::mat4(1.0f);
         modelMatrix = glm::translate(modelMatrix, renderingObjects[i]->position);
@@ -1089,6 +1090,8 @@ void Renderer3D::generateImageManagement(Window& showWindow)
     createSwapchain(showWindow);
     createImageViews();
     createDescriptorSetLayout();
+    createTextureDescriptorLayout();
+    createTextureDescriptorPool();
 }
 
 void Renderer3D::generateCommandInfrastructure()
@@ -1257,17 +1260,21 @@ void Renderer3D::createGraphicsPipeline(const std::string& vertShaderPath, const
     colorBlendingInfo.attachmentCount = 1;
     colorBlendingInfo.pAttachments = &colorBlendAttachment;
 
-    vk::PushConstantRange pushConstantRange;
-    pushConstantRange.stageFlags = vk::ShaderStageFlagBits::eVertex;
-    pushConstantRange.offset = 0;
-    pushConstantRange.size = sizeof(glm::mat4);
+    vk::PushConstantRange modelMatrixPushConstantRange;
+    modelMatrixPushConstantRange.stageFlags = vk::ShaderStageFlagBits::eVertex;
+    modelMatrixPushConstantRange.offset = 0;
+    modelMatrixPushConstantRange.size = sizeof(glm::mat4);
+
+    std::vector<vk::PushConstantRange> pushConstantRanges = {modelMatrixPushConstantRange};
+
+    std::vector<vk::DescriptorSetLayout> descriptorLayouts {*descriptorSetLayout, *samplerLayout};
 
     //Finally, we define the pipeline layout
     vk::PipelineLayoutCreateInfo pipelineLayoutInfo;
-    pipelineLayoutInfo.setLayoutCount = 1;
-    pipelineLayoutInfo.pSetLayouts = &*descriptorSetLayout;
-    pipelineLayoutInfo.pPushConstantRanges = &pushConstantRange;
-    pipelineLayoutInfo.pushConstantRangeCount = 1;
+    pipelineLayoutInfo.setLayoutCount = static_cast<uint32_t>(descriptorLayouts.size());
+    pipelineLayoutInfo.pSetLayouts = descriptorLayouts.data();
+    pipelineLayoutInfo.pPushConstantRanges = pushConstantRanges.data();
+    pipelineLayoutInfo.pushConstantRangeCount = pushConstantRanges.size();
 
     pipelineLayout = vk::raii::PipelineLayout(logicalDevice, pipelineLayoutInfo);
 
@@ -1311,10 +1318,10 @@ void Renderer3D::createBuffers()
     createUniformBuffers(sizeof(CameraUBO));
 }
 
-void Renderer3D::createDescriptors(size_t UBOSize, Texture& texture)
+void Renderer3D::createDescriptors(size_t UBOSize)
 {
     createDescriptorPool();
-    createDescriptorSets(UBOSize, texture);
+    createDescriptorSets(UBOSize);
 }
 
 void Renderer3D::cleanUpSwapchain()
@@ -1330,4 +1337,67 @@ void Renderer3D::loadTexture(Texture& texture)
     createTextureImage(texture);
     createTextureImageView(texture);
     createTextureSampler(texture);
+
+    createTextureDescriptorSets(texture);
+}
+
+void Renderer3D::createTextureDescriptorSets(Texture& texture)
+{
+    std::vector<vk::DescriptorSetLayout> layouts(MAX_FRAMES_IN_FLIGHT, *samplerLayout);
+
+    vk::DescriptorSetAllocateInfo samplerAllocInfo;
+    samplerAllocInfo.descriptorPool = samplerPool;
+    samplerAllocInfo.descriptorSetCount = static_cast<uint32_t>(layouts.size());
+    samplerAllocInfo.pSetLayouts = layouts.data();
+
+    texture.textureDescriptorSets = logicalDevice.allocateDescriptorSets(samplerAllocInfo);
+
+    for(size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
+    {
+        vk::DescriptorImageInfo imageInfo;
+        imageInfo.sampler = texture.textureSampler;
+        imageInfo.imageView = texture.textureImageView;
+        imageInfo.imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
+
+        vk::WriteDescriptorSet descriptorWriteImage;
+        descriptorWriteImage.dstSet = texture.textureDescriptorSets[i];
+        descriptorWriteImage.dstBinding = 0;
+        descriptorWriteImage.dstArrayElement = 0;
+        descriptorWriteImage.descriptorCount = 1;
+        descriptorWriteImage.descriptorType = vk::DescriptorType::eCombinedImageSampler;
+        descriptorWriteImage.pImageInfo = &imageInfo;
+
+        logicalDevice.updateDescriptorSets(descriptorWriteImage, {});
+    }
+}
+
+void Renderer3D::createTextureDescriptorLayout()
+{
+    vk::DescriptorSetLayoutBinding samplerLayoutBinding;
+    samplerLayoutBinding.binding = 0;
+    samplerLayoutBinding.descriptorType = vk::DescriptorType::eCombinedImageSampler;
+    samplerLayoutBinding.descriptorCount = 1;
+    samplerLayoutBinding.stageFlags = vk::ShaderStageFlagBits::eFragment;
+
+    vk::DescriptorSetLayoutCreateInfo samplerLayoutInfo;
+    samplerLayoutInfo.bindingCount = 1;
+    samplerLayoutInfo.pBindings = &samplerLayoutBinding;
+
+    samplerLayout = vk::raii::DescriptorSetLayout(logicalDevice, samplerLayoutInfo);
+}
+
+void Renderer3D::createTextureDescriptorPool()
+{
+    //Create the descriptor pool that will allocate the descriptor set
+    vk::DescriptorPoolSize samplerPoolSize;
+    samplerPoolSize.type = vk::DescriptorType::eCombinedImageSampler;
+    samplerPoolSize.descriptorCount = MAX_FRAMES_IN_FLIGHT * 2;
+
+    vk::DescriptorPoolCreateInfo samplerPoolInfo;
+    samplerPoolInfo.flags = vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet;
+    samplerPoolInfo.maxSets = MAX_FRAMES_IN_FLIGHT * 2;
+    samplerPoolInfo.poolSizeCount = 1;
+    samplerPoolInfo.pPoolSizes = &samplerPoolSize;
+
+    samplerPool = vk::raii::DescriptorPool(logicalDevice, samplerPoolInfo);
 }

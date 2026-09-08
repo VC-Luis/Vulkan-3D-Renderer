@@ -34,7 +34,7 @@ public:
     void generateImageManagement(Window& showWindow);
     void generateCommandInfrastructure();
     void createBuffers();
-    void createDescriptors(size_t UBOSize, Texture& texture);
+    void createDescriptors(size_t UBOSize);
 
     void loadTexture(Texture& texture);
 
@@ -44,6 +44,10 @@ public:
     void cleanUpSwapchain();
 
     void drawModel(Model* model);
+
+    void createTextureDescriptorSets(Texture& texture);
+    void createTextureDescriptorLayout();
+    void createTextureDescriptorPool();
 
     void createInstance(std::string engineName, Window& showWindow, bool enableValidationLayers, EngineVersion version);
     void setupDebugMessenger(bool enableValidationLayers);
@@ -60,7 +64,7 @@ public:
     void createIndexBuffer(Mesh& mesh);
     void createUniformBuffers(size_t UBOSize);
     void createDescriptorPool();
-    void createDescriptorSets(size_t UBOSize, Texture& texture);
+    void createDescriptorSets(size_t UBOSize);
     void createCommandBuffers();
     void createSyncObjects();
     void createTextureImage(Texture& texture);
@@ -135,6 +139,9 @@ public:
     std::vector<vk::raii::Buffer> uniformBuffers;
     std::vector<vk::raii::DeviceMemory> uniformBuffersMemory;
     std::vector<void*> uniformBuffersMapped;
+
+    vk::raii::DescriptorSetLayout samplerLayout = nullptr;
+    vk::raii::DescriptorPool samplerPool = nullptr;
 
     vk::raii::DescriptorPool descriptorPool = nullptr;
     std::vector<vk::raii::DescriptorSet> descriptorSets;

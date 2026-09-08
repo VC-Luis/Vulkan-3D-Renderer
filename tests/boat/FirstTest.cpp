@@ -58,21 +58,24 @@ int main(int argc, char const *argv[])
     renderer.generateCommandInfrastructure();
 
     renderer.createGraphicsPipeline("assets/shader.spv", "vertMain", "assets/shader.spv", "fragMain");
+    
+    Texture boatTexture("assets/colormap.png");
+    Texture ocreanLinerTexture("assets/inverted-colormap.png");
 
     Mesh shipMesh("assets/ship-large.obj");
-    Model boatTestModel(shipMesh, glm::vec3(0.0f, 0.0f, 0.0f), glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+    Model boatTestModel(shipMesh, glm::vec3(0.0f, 0.0f, 0.0f), glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f), boatTexture);
     renderer.drawModel(&boatTestModel);
 
     Mesh oceanLinerMesh("assets/ship-ocean-liner.obj");
-    Model oceanModel(oceanLinerMesh, glm::vec3(0.0f, 10.0f, 0.0f), glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+    Model oceanModel(oceanLinerMesh, glm::vec3(0.0f, 10.0f, 0.0f), glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f), ocreanLinerTexture);
     renderer.drawModel(&oceanModel);
 
     renderer.createBuffers();
 
-    Texture boatTexture("assets/colormap.png");
     renderer.loadTexture(boatTexture);
+    renderer.loadTexture(ocreanLinerTexture);
 
-    renderer.createDescriptors(sizeof(CameraUBO), boatTexture);
+    renderer.createDescriptors(sizeof(CameraUBO));
     renderer.createSyncObjects();
 
     double angle = 0;

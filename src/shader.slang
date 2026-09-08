@@ -28,7 +28,7 @@ ConstantBuffer<PushConstants> pushConstants;
 
 [vk_binding(0, 0)]
 ConstantBuffer<UniformBuffer> UBO;
-[vk_binding(1, 0)]
+[vk_binding(0, 1)]
 Sampler2D texture;
 
 
