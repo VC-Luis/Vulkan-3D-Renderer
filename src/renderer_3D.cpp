@@ -1091,7 +1091,6 @@ void Renderer3D::generateImageManagement(Window& showWindow)
     createImageViews();
     createDescriptorSetLayout();
     createTextureDescriptorLayout();
-    createTextureDescriptorPool();
 }
 
 void Renderer3D::generateCommandInfrastructure()
@@ -1338,6 +1337,7 @@ void Renderer3D::loadTexture(Texture& texture)
     createTextureImageView(texture);
     createTextureSampler(texture);
 
+    createTextureDescriptorPool();
     createTextureDescriptorSets(texture);
 }
 
@@ -1346,7 +1346,7 @@ void Renderer3D::createTextureDescriptorSets(Texture& texture)
     std::vector<vk::DescriptorSetLayout> layouts(MAX_FRAMES_IN_FLIGHT, *samplerLayout);
 
     vk::DescriptorSetAllocateInfo samplerAllocInfo;
-    samplerAllocInfo.descriptorPool = samplerPool;
+    samplerAllocInfo.descriptorPool = samplerPools[samplerPools.size() - 1];
     samplerAllocInfo.descriptorSetCount = static_cast<uint32_t>(layouts.size());
     samplerAllocInfo.pSetLayouts = layouts.data();
 
@@ -1388,16 +1388,19 @@ void Renderer3D::createTextureDescriptorLayout()
 
 void Renderer3D::createTextureDescriptorPool()
 {
-    //Create the descriptor pool that will allocate the descriptor set
-    vk::DescriptorPoolSize samplerPoolSize;
-    samplerPoolSize.type = vk::DescriptorType::eCombinedImageSampler;
-    samplerPoolSize.descriptorCount = MAX_FRAMES_IN_FLIGHT * 2;
+    if(renderingObjects.size() >= TEXTURES_IN_POOL * samplerPools.size())
+    {
+        //Create the descriptor pool that will allocate the descriptor set
+        vk::DescriptorPoolSize samplerPoolSize;
+        samplerPoolSize.type = vk::DescriptorType::eCombinedImageSampler;
+        samplerPoolSize.descriptorCount = MAX_FRAMES_IN_FLIGHT * TEXTURES_IN_POOL;
 
-    vk::DescriptorPoolCreateInfo samplerPoolInfo;
-    samplerPoolInfo.flags = vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet;
-    samplerPoolInfo.maxSets = MAX_FRAMES_IN_FLIGHT * 2;
-    samplerPoolInfo.poolSizeCount = 1;
-    samplerPoolInfo.pPoolSizes = &samplerPoolSize;
+        vk::DescriptorPoolCreateInfo samplerPoolInfo;
+        samplerPoolInfo.flags = vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet;
+        samplerPoolInfo.maxSets = MAX_FRAMES_IN_FLIGHT * TEXTURES_IN_POOL;
+        samplerPoolInfo.poolSizeCount = 1;
+        samplerPoolInfo.pPoolSizes = &samplerPoolSize;
 
-    samplerPool = vk::raii::DescriptorPool(logicalDevice, samplerPoolInfo);
+        samplerPools.push_back(vk::raii::DescriptorPool(logicalDevice, samplerPoolInfo));
+    }
 }

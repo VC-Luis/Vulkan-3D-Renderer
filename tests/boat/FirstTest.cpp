@@ -61,6 +61,7 @@ int main(int argc, char const *argv[])
     
     Texture boatTexture("assets/colormap.png");
     Texture ocreanLinerTexture("assets/inverted-colormap.png");
+    Texture boatHouseTexture("assets/colorlessmap.png");
 
     Mesh shipMesh("assets/ship-large.obj");
     Model boatTestModel(shipMesh, glm::vec3(0.0f, 0.0f, 0.0f), glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f), boatTexture);
@@ -70,10 +71,15 @@ int main(int argc, char const *argv[])
     Model oceanModel(oceanLinerMesh, glm::vec3(0.0f, 10.0f, 0.0f), glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f), ocreanLinerTexture);
     renderer.drawModel(&oceanModel);
 
+    Mesh boatHouseMesh("assets/boat-house-b.obj");
+    Model boatHouseModel(boatHouseMesh, glm::vec3(0.0f, 0.0f, 10.0f), glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f), boatHouseTexture);
+    renderer.drawModel(&boatHouseModel);
+
     renderer.createBuffers();
 
     renderer.loadTexture(boatTexture);
     renderer.loadTexture(ocreanLinerTexture);
+    renderer.loadTexture(boatHouseTexture);
 
     renderer.createDescriptors(sizeof(CameraUBO));
     renderer.createSyncObjects();

@@ -73,6 +73,7 @@ public:
     void createDepthResources();
 
     int MAX_FRAMES_IN_FLIGHT = 2;
+    int TEXTURES_IN_POOL = 2;
 
 //private:
 
@@ -141,7 +142,7 @@ public:
     std::vector<void*> uniformBuffersMapped;
 
     vk::raii::DescriptorSetLayout samplerLayout = nullptr;
-    vk::raii::DescriptorPool samplerPool = nullptr;
+    std::vector<vk::raii::DescriptorPool> samplerPools;
 
     vk::raii::DescriptorPool descriptorPool = nullptr;
     std::vector<vk::raii::DescriptorSet> descriptorSets;
