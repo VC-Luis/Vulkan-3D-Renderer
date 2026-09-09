@@ -59,7 +59,6 @@ public:
     void createDescriptorSetLayout();
     void createGraphicsPipeline(const std::string& vertShaderPath, const char* vertStartpoint, const std::string& fragShaderPath, const char* fragStartpoint);
     void createCommandPool();
-    //void loadModel(Mesh mesh);
     void createVertexBuffer(Mesh& mesh);
     void createIndexBuffer(Mesh& mesh);
     void createUniformBuffers(size_t UBOSize);
@@ -75,7 +74,7 @@ public:
     int MAX_FRAMES_IN_FLIGHT = 2;
     int TEXTURES_IN_POOL = 2;
 
-//private:
+private:
 
     vk::Extent2D chooseSwapExtent(vk::SurfaceCapabilitiesKHR const& capabilities, Window& window);
     [[nodiscard]] vk::raii::ShaderModule createShaderModule(const std::vector<char>& code) const;
@@ -128,14 +127,6 @@ public:
     bool framebufferResized = false;
     
     std::vector<Model*> renderingObjects;
-    
-    //std::vector<Vertex> vertices;
-    //vk::raii::Buffer vertexBuffer = nullptr;
-    //vk::raii::DeviceMemory vertexBufferMemory = nullptr;
-
-    //std::vector<uint32_t> indices;
-    //vk::raii::Buffer indexBuffer = nullptr;
-    //vk::raii::DeviceMemory indexBufferMemory = nullptr;
 
     std::vector<vk::raii::Buffer> uniformBuffers;
     std::vector<vk::raii::DeviceMemory> uniformBuffersMemory;
@@ -146,11 +137,6 @@ public:
 
     vk::raii::DescriptorPool descriptorPool = nullptr;
     std::vector<vk::raii::DescriptorSet> descriptorSets;
-
-    //vk::raii::Image textureImage = nullptr;
-    //vk::raii::DeviceMemory textureImageMemory = nullptr;
-    //vk::raii::ImageView textureImageView = nullptr;
-    //vk::raii::Sampler textureSampler = nullptr;
 
     vk::raii::Image depthImage = nullptr;
     vk::raii::DeviceMemory depthImageMemory = nullptr;

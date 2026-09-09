@@ -674,12 +674,6 @@ void Renderer3D::createDescriptorSetLayout()
     UBOLayoutBinding.descriptorCount = 1;
     UBOLayoutBinding.stageFlags = vk::ShaderStageFlagBits::eVertex;
 
-    //vk::DescriptorSetLayoutBinding samplerLayoutBinding;
-    //samplerLayoutBinding.binding = 1;
-    //samplerLayoutBinding.descriptorType = vk::DescriptorType::eCombinedImageSampler;
-    //samplerLayoutBinding.descriptorCount = 1;
-    //samplerLayoutBinding.stageFlags = vk::ShaderStageFlagBits::eFragment;
-
     std::array<vk::DescriptorSetLayoutBinding, 1> bindings = {UBOLayoutBinding};
 
     vk::DescriptorSetLayoutCreateInfo layoutInfo;
@@ -693,8 +687,6 @@ void Renderer3D::createDescriptorSetLayout()
         throw std::runtime_error("The descriptor set layout could not be made");
     }
 }
-
-//template<typename VertexStruct> void Renderer3D::createGraphicsPipeline(const std::string& vertShaderPath, const char* vertStartpoint, const std::string& fragShaderPath, const char* fragStartpoint)
 
 //Command pools manage the memory that is used to store the buffers and command buffers are allocated from them
 void Renderer3D::createCommandPool()
@@ -771,10 +763,6 @@ void Renderer3D::createDescriptorPool()
     UBOPoolSize.type = vk::DescriptorType::eUniformBuffer;
     UBOPoolSize.descriptorCount = MAX_FRAMES_IN_FLIGHT;
 
-    //vk::DescriptorPoolSize samplerPoolSize;
-    //samplerPoolSize.type = vk::DescriptorType::eCombinedImageSampler;
-    //samplerPoolSize.descriptorCount = MAX_FRAMES_IN_FLIGHT;
-
     std::array<vk::DescriptorPoolSize, 1> poolSize = {UBOPoolSize};
     
     vk::DescriptorPoolCreateInfo poolInfo;
@@ -805,11 +793,6 @@ void Renderer3D::createDescriptorSets(size_t UBOSize)
         bufferInfo.offset = 0;
         bufferInfo.range = UBOSize;
 
-        //vk::DescriptorImageInfo imageInfo;
-        //imageInfo.sampler = texture.textureSampler;
-        //imageInfo.imageView = texture.textureImageView;
-        //imageInfo.imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
-
         vk::WriteDescriptorSet descriptorWriteBuffer;
         descriptorWriteBuffer.dstSet = descriptorSets[i];
         descriptorWriteBuffer.dstBinding = 0;
@@ -817,14 +800,6 @@ void Renderer3D::createDescriptorSets(size_t UBOSize)
         descriptorWriteBuffer.descriptorCount = 1;
         descriptorWriteBuffer.descriptorType = vk::DescriptorType::eUniformBuffer;
         descriptorWriteBuffer.pBufferInfo = &bufferInfo;
-
-        //vk::WriteDescriptorSet descriptorWriteImage;
-        //descriptorWriteImage.dstSet = descriptorSets[i];
-        //descriptorWriteImage.dstBinding = 1;
-        //descriptorWriteImage.dstArrayElement = 0;
-        //descriptorWriteImage.descriptorCount = 1;
-        //descriptorWriteImage.descriptorType = vk::DescriptorType::eCombinedImageSampler;
-        //descriptorWriteImage.pImageInfo = &imageInfo;
 
         std::array<vk::WriteDescriptorSet, 1> descriptorWrites = {descriptorWriteBuffer};
         
