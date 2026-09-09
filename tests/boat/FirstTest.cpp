@@ -51,7 +51,7 @@ int main(int argc, char const *argv[])
     glfwSetCursorPosCallback(window.GLWindow, mouse_callback);
 	glfwSetInputMode(window.GLWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
-    renderer.engineSetup("Test", window, true, {0, 1, 0});
+    renderer.engineSetup(window, true);
     renderer.setupGPU();
     renderer.generateImageManagement(window);
     renderer.createDepthResources();

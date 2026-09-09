@@ -24,13 +24,13 @@ struct CameraUBO
     glm::mat4 projectionMatrix;
 };
     
-int myScoringFunction(vk::raii::PhysicalDevice GPU);
+int dGPUBiascoringFunction(vk::raii::PhysicalDevice GPU);
 
 class Renderer3D
 {
 public:
-    void engineSetup(std::string engineName, Window& showWindow, bool enableValidationLayers, EngineVersion version);
-    void setupGPU(int (*GPUScoringFunction) (vk::raii::PhysicalDevice GPU) = myScoringFunction);
+    void engineSetup(Window& showWindow, bool enableValidationLayers);
+    void setupGPU(int (*GPUScoringFunction) (vk::raii::PhysicalDevice GPU) = dGPUBiascoringFunction);
     void generateImageManagement(Window& showWindow);
     void generateCommandInfrastructure();
     void createBuffers();
@@ -49,7 +49,7 @@ public:
     void createTextureDescriptorLayout();
     void createTextureDescriptorPool();
 
-    void createInstance(std::string engineName, Window& showWindow, bool enableValidationLayers, EngineVersion version);
+    void createInstance(Window& showWindow, bool enableValidationLayers);
     void setupDebugMessenger(bool enableValidationLayers);
     void createSurface(Window& window);
     void pickPhysicalDevice(int (*scoringFunction) (vk::raii::PhysicalDevice GPU));
@@ -75,6 +75,12 @@ public:
     int TEXTURES_IN_POOL = 2;
 
 private:
+
+    const uint8_t engineMajorVersion = 0;
+    const uint8_t engineMinorVersion = 1;
+    const uint8_t enginePatchVersion = 0;
+
+    const char* engineName = "Bedrock Engine";
 
     vk::Extent2D chooseSwapExtent(vk::SurfaceCapabilitiesKHR const& capabilities, Window& window);
     [[nodiscard]] vk::raii::ShaderModule createShaderModule(const std::vector<char>& code) const;

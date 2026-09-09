@@ -95,7 +95,7 @@ bool isDeviceSuitable(vk::raii::PhysicalDevice const& physicalDevice)
     return true;
 }
 
-int myScoringFunction(vk::raii::PhysicalDevice GPU)
+int dGPUBiascoringFunction(vk::raii::PhysicalDevice GPU)
 {
     int score = 0;
 
@@ -403,13 +403,13 @@ void Renderer3D::createTextureSampler(Texture& texture)
 
 //Firstly, we need to create the Vulkan instance, the connection between this application and the Vulkan library
 //To do this, we just need to give it some informations
-void Renderer3D::createInstance(std::string engineName, Window& showWindow, bool enableValidationLayers, EngineVersion version)
+void Renderer3D::createInstance(Window& showWindow, bool enableValidationLayers)
 {
     vk::ApplicationInfo appInfo;
     appInfo.pApplicationName = showWindow.windowName.c_str();
-    appInfo.applicationVersion = VK_MAKE_VERSION(version.major, version.minor, version.patch);
-    appInfo.pEngineName = engineName.c_str();
-    appInfo.engineVersion = VK_MAKE_VERSION(version.major, version.minor, version.patch);
+    appInfo.applicationVersion = VK_MAKE_VERSION(0, 1, 0);
+    appInfo.pEngineName = engineName;
+    appInfo.engineVersion = VK_MAKE_VERSION(engineMajorVersion, engineMinorVersion, enginePatchVersion);
     appInfo.apiVersion = vk::ApiVersion14; // The API version being 1.4 will help us with using Slang for shaders
 
     //Now we need to check if the requested validation layers (used for debugging) are available
@@ -994,7 +994,6 @@ void Renderer3D::recordCommandBuffer(uint32_t imageIndex)
     commandBuffers[frameIndex].end();
 }
 
-
 void Renderer3D::fetchNewImage(Window& showWindow, Camera cam)
 {
     auto [result, imageIndex] = swapChain.acquireNextImage(UINT64_MAX, *presentCompleteSemaphores[frameIndex], nullptr);
@@ -1047,9 +1046,9 @@ void Renderer3D::fetchNewImage(Window& showWindow, Camera cam)
     }
 }
 
-void Renderer3D::engineSetup(std::string engineName, Window& showWindow, bool enableValidationLayers, EngineVersion version)
+void Renderer3D::engineSetup(Window& showWindow, bool enableValidationLayers)
 {
-    createInstance(engineName, showWindow, enableValidationLayers, version);
+    createInstance(showWindow, enableValidationLayers);
     setupDebugMessenger(enableValidationLayers);
     createSurface(showWindow);
 }
@@ -1119,12 +1118,6 @@ std::pair<vk::raii::Image, vk::raii::DeviceMemory> Renderer3D::createImage(uint3
 
     return {std::move(image), std::move(imageMemory)};
 }
-
-/*void Renderer3D::loadModel(Mesh mesh)
-{
-    vertices = mesh.vertices;
-    indices = mesh.indices;
-}*/
 
 void Renderer3D::createDepthResources()
 {
