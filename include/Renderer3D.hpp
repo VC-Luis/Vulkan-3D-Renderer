@@ -29,24 +29,81 @@ int dGPUBiascoringFunction(vk::raii::PhysicalDevice GPU);
 class Renderer3D
 {
 public:
+    /**
+     * @brief Sets up the Vulkan instance and associates it with the given window.
+     * 
+     * @param showWindow The window to associate with the instance
+     * @param enableValidationLayers Determines if the validation layers, which show debug messages, are enabled
+     */
     void engineSetup(Window& showWindow, bool enableValidationLayers);
+    /**
+     * @brief Picks a graphics card and links it to Vulkan
+     * 
+     * @param GPUScoringFunction The function that gives a score to each graphics card. The one with the biggest score will be picked.
+     */
     void setupGPU(int (*GPUScoringFunction) (vk::raii::PhysicalDevice GPU) = dGPUBiascoringFunction);
+    /**
+     * @brief Generates all Vulkan resources related to the final image output
+     * 
+     * @param showWindow The window that will be rendered to
+     */
     void generateImageManagement(Window& showWindow);
+    /**
+     * @brief Creates all necessary objects to handle sending commands to the GPU.
+     */
     void generateCommandInfrastructure();
+    /**
+     * @brief Fills the vertex and index buffers of all models, which will later be sent to the GPU.
+     */
     void createBuffers();
+    /**
+     * @brief Create the descriptor sets that will send camera information to the GPU.
+     * 
+     * @param UBOSize The size (in bytes) of the data block to be sent
+     */
     void createDescriptors(size_t UBOSize);
 
+    /**
+     * @brief Generate texture resources and load them into the rendering pipeline.
+     * 
+     * @param texture The texture to be loaded
+     */
     void loadTexture(Texture& texture);
 
+    /**
+     * @brief Wait for the previous frame to end rendering fully.
+     */
     void waitForFrame();
+    /**
+     * @brief Updates all data being sent to the GPU and creates the new frame.
+     * 
+     * @param showWindow the window to render to
+     * @param cam The camera from which to render
+     */
     void fetchNewImage(Window& showWindow, Camera cam);
-
+    /**
+     * @brief Cleans up the swap chain and its images
+     */
     void cleanUpSwapchain();
-
+    /**
+     * @brief Sends a model to be rendered
+     * 
+     * @param model The model to be rendered.
+     */
     void drawModel(Model* model);
-
+    /**
+     * @brief Creates the descriptor sets for a texture for transfer to the GPU.
+     * 
+     * @param texture The texture that will have the descriptor sets created
+     */
     void createTextureDescriptorSets(Texture& texture);
+    /**
+     * @brief Creates the descriptor layout for textures
+     */
     void createTextureDescriptorLayout();
+    /**
+     * @brief Creates the descriptor pools and adds more as needed.
+     */
     void createTextureDescriptorPool();
 
     void createInstance(Window& showWindow, bool enableValidationLayers);
@@ -57,6 +114,16 @@ public:
     void createSwapchain(Window& showWindow);
     void createImageViews();
     void createDescriptorSetLayout();
+    /**
+     * @brief Generates the graphics pipeline, which defines the way everything to do with rendering is going to work.
+     * 
+     * @param vertShaderPath The location of the vertex shader file
+     * @param vertStartPoint The name of the function that starts the vertex shader
+     * @param fragShaderPath The location of the fragment shader file
+     * @param fragStartPoint The name of the function that starts the fragment shader
+     * 
+     * @note The vertex and fragment shaders can be in a single file
+     */
     void createGraphicsPipeline(const std::string& vertShaderPath, const char* vertStartpoint, const std::string& fragShaderPath, const char* fragStartpoint);
     void createCommandPool();
     void createVertexBuffer(Mesh& mesh);
@@ -65,10 +132,16 @@ public:
     void createDescriptorPool();
     void createDescriptorSets(size_t UBOSize);
     void createCommandBuffers();
+    /**
+     * @brief Creates objects to manage synchronization between frames.
+     */
     void createSyncObjects();
     void createTextureImage(Texture& texture);
     void createTextureImageView(Texture& texture);
     void createTextureSampler(Texture& texture);
+    /**
+     * @brief Creates all needed resources to manage depth mapping
+     */
     void createDepthResources();
 
     int MAX_FRAMES_IN_FLIGHT = 2;
