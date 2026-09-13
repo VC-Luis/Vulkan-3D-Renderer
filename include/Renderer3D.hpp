@@ -11,13 +11,6 @@
 #ifndef RENDERER3D_H
 #define RENDERER3D_H
 
-struct EngineVersion
-{
-    uint32_t major;
-    uint32_t minor;
-    uint32_t patch;
-};
-
 struct CameraUBO
 {
     glm::mat4 viewMatrix;
@@ -184,23 +177,23 @@ private:
     void createTextureImageView(Texture& texture);
     void createTextureSampler(Texture& texture);
 
-    vk::raii::Context context;
+    vk::raii::Context context; //The Vulkan context provides a way to access Vulkan functions, which will be used by an instance
     vk::raii::Instance instance = nullptr; //The Vulkan instance is the connection between this application and the Vulkan library
 
-    const std::vector<char const*> validationLayers = {"VK_LAYER_KHRONOS_validation"};
-    vk::raii::DebugUtilsMessengerEXT debugMessenger = nullptr;
+    const std::vector<char const*> validationLayers = {"VK_LAYER_KHRONOS_validation"}; //Validation layers can show Vulkan-related errors the compiler would not catch
+    vk::raii::DebugUtilsMessengerEXT debugMessenger = nullptr; //This object handles sending the messages from the validation layers
 
     vk::raii::PhysicalDevice physicalDevice = nullptr; //The actual hardware that will do the computation we code later
     vk::raii::Device logicalDevice = nullptr; //The logical device that will interface with the hardware
-    vk::raii::Queue graphicsQueue = nullptr;
-    uint32_t queueIndex = UINT32_MAX;
+    vk::raii::Queue graphicsQueue = nullptr; //This queue will hold the information necessary to send images to the screen
+    uint32_t queueIndex = UINT32_MAX; //Holds the index for the queue family for descriptor pools
 
-    vk::raii::SurfaceKHR surface = nullptr;
+    vk::raii::SurfaceKHR surface = nullptr; //The surface is an abstraction of a window
 
-    vk::raii::SwapchainKHR swapChain = nullptr;
-    std::vector<vk::Image> swapChainImages;
-    vk::SurfaceFormatKHR swapChainSurfaceFormat;
-    vk::Extent2D swapChainExtent;
+    vk::raii::SwapchainKHR swapChain = nullptr; //The swapchain holds several images so as to maximise usage rates and avoid screen tearing
+    std::vector<vk::Image> swapChainImages; //The actual images that are in the swapchain
+    vk::SurfaceFormatKHR swapChainSurfaceFormat; //The format of the images
+    vk::Extent2D swapChainExtent; //The size of the images of the swapchian
 
     std::vector<vk::raii::ImageView> swapChainImageViews; //Image views describe how to access and image and what part of it
 
@@ -209,30 +202,30 @@ private:
     vk::raii::Pipeline graphicsPipeline = nullptr; //The actual graphics pipeline itself
 
     vk::raii::CommandPool commandPool = nullptr; //The command pool manages the memory used to store the buffers and it allocates the command buffers
-    std::vector<vk::raii::CommandBuffer> commandBuffers;
+    std::vector<vk::raii::CommandBuffer> commandBuffers; //The command buffers hold the commands we will send to the GPU
 
-    std::vector<vk::raii::Semaphore> presentCompleteSemaphores;
-    std::vector<vk::raii::Semaphore> renderFinishedSemaphores;
-    std::vector<vk::raii::Fence> inFlightFences;
+    std::vector<vk::raii::Semaphore> presentCompleteSemaphores; //Semaphores for controlling when the image is presented to the screen
+    std::vector<vk::raii::Semaphore> renderFinishedSemaphores; //Semaphores for controlling when the image is rendered
+    std::vector<vk::raii::Fence> inFlightFences; //Fences to ensure synchronization between the images of the swapchain
 
-    uint32_t frameIndex = 0;
-    bool framebufferResized = false;
+    uint32_t frameIndex = 0; //The index of the frame that is being currentry worked on
+    bool framebufferResized = false; //Whether the framebuffer was resized for synching reasons
     
-    std::vector<Model*> renderingObjects;
+    std::vector<Model*> renderingObjects; //The list of objects to be rendered
 
-    std::vector<vk::raii::Buffer> uniformBuffers;
-    std::vector<vk::raii::DeviceMemory> uniformBuffersMemory;
-    std::vector<void*> uniformBuffersMapped;
+    std::vector<vk::raii::Buffer> uniformBuffers; //The uniform buffers hold the camera information for rendering
+    std::vector<vk::raii::DeviceMemory> uniformBuffersMemory; //The memory of the uniform buffers
+    std::vector<void*> uniformBuffersMapped; //Mapping of the uniform buffers' memory onto CPU-readable addresses
 
-    vk::raii::DescriptorSetLayout samplerLayout = nullptr;
-    std::vector<vk::raii::DescriptorPool> samplerPools;
+    vk::raii::DescriptorSetLayout samplerLayout = nullptr; //Descriptor set layout for textures
+    std::vector<vk::raii::DescriptorPool> samplerPools; //This vector holds all memory allocated to textures
 
-    vk::raii::DescriptorPool descriptorPool = nullptr;
-    std::vector<vk::raii::DescriptorSet> descriptorSets;
+    vk::raii::DescriptorPool descriptorPool = nullptr; //This descriptor pool holds the uniform buffers in memory for the GPU
+    std::vector<vk::raii::DescriptorSet> descriptorSets; //This vector holds the actual uniform buffer data to
 
-    vk::raii::Image depthImage = nullptr;
-    vk::raii::DeviceMemory depthImageMemory = nullptr;
-    vk::raii::ImageView depthImageView = nullptr;
+    vk::raii::Image depthImage = nullptr; //The depth image. Note that depth values range from 0 to 1
+    vk::raii::DeviceMemory depthImageMemory = nullptr; //The memory holding the depth image
+    vk::raii::ImageView depthImageView = nullptr; //This object describes how and where to access the depth image
 
 };
 
