@@ -61,7 +61,7 @@ public:
      * 
      * @param UBOSize The size (in bytes) of the data block to be sent
      */
-    void createDescriptors(size_t UBOSize);
+    void createDescriptors(size_t UBOSize = sizeof(CameraUBO));
 
     /**
      * @brief Generate texture resources and load them into the rendering pipeline.
@@ -105,15 +105,6 @@ public:
      * @brief Creates the descriptor pools and adds more as needed.
      */
     void createTextureDescriptorPool();
-
-    void createInstance(Window& showWindow, bool enableValidationLayers);
-    void setupDebugMessenger(bool enableValidationLayers);
-    void createSurface(Window& window);
-    void pickPhysicalDevice(int (*scoringFunction) (vk::raii::PhysicalDevice GPU));
-    void createLogicalDevice();
-    void createSwapchain(Window& showWindow);
-    void createImageViews();
-    void createDescriptorSetLayout();
     /**
      * @brief Generates the graphics pipeline, which defines the way everything to do with rendering is going to work.
      * 
@@ -125,30 +116,37 @@ public:
      * @note The vertex and fragment shaders can be in a single file
      */
     void createGraphicsPipeline(const std::string& vertShaderPath, const char* vertStartpoint, const std::string& fragShaderPath, const char* fragStartpoint);
+    /**
+     * @brief Creates the commnad pool, which holds the commands that will later be sent to the GPU.
+     */
     void createCommandPool();
+    /**
+     * @brief Creates the vertex buffer for the given mesh, which holds the vertices' data for the GPU
+     * 
+     * @param mesh The mesh holding the vertex buffer to be generated.
+     */
     void createVertexBuffer(Mesh& mesh);
+    /**
+     * @brief Creates the index buffer for the given mesh, which holds the indices' data for the GPU
+     * 
+     * @param mesh The mesh holding the index buffer to be generated.
+     */
     void createIndexBuffer(Mesh& mesh);
-    void createUniformBuffers(size_t UBOSize);
-    void createDescriptorPool();
-    void createDescriptorSets(size_t UBOSize);
-    void createCommandBuffers();
     /**
      * @brief Creates objects to manage synchronization between frames.
      */
     void createSyncObjects();
-    void createTextureImage(Texture& texture);
-    void createTextureImageView(Texture& texture);
-    void createTextureSampler(Texture& texture);
     /**
      * @brief Creates all needed resources to manage depth mapping
      */
     void createDepthResources();
 
+    //The maximum number of frames that are to be rendered at once
     int MAX_FRAMES_IN_FLIGHT = 2;
+    //The number of textures that fit inside a texture descriptor pool
     int TEXTURES_IN_POOL = 2;
 
 private:
-
     const uint8_t engineMajorVersion = 0;
     const uint8_t engineMinorVersion = 1;
     const uint8_t enginePatchVersion = 0;
@@ -170,6 +168,21 @@ private:
     vk::raii::ImageView createImageView(vk::Image const &image, vk::Format format, vk::ImageAspectFlags aspectFlags);
     vk::Format findSupportedFormat(const std::vector<vk::Format>& candidates, vk::ImageTiling tiling, vk::FormatFeatureFlags features);
     vk::Format findDepthFormat();
+    void createInstance(Window& showWindow, bool enableValidationLayers);
+    void setupDebugMessenger(bool enableValidationLayers);
+    void createSurface(Window& window);
+    void pickPhysicalDevice(int (*scoringFunction) (vk::raii::PhysicalDevice GPU));
+    void createLogicalDevice();
+    void createSwapchain(Window& showWindow);
+    void createImageViews();
+    void createDescriptorSetLayout();
+    void createUniformBuffers(size_t UBOSize = sizeof(CameraUBO));
+    void createDescriptorPool();
+    void createDescriptorSets(size_t UBOSize = sizeof(CameraUBO));
+    void createCommandBuffers();
+    void createTextureImage(Texture& texture);
+    void createTextureImageView(Texture& texture);
+    void createTextureSampler(Texture& texture);
 
     vk::raii::Context context;
     vk::raii::Instance instance = nullptr; //The Vulkan instance is the connection between this application and the Vulkan library
