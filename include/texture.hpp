@@ -6,7 +6,7 @@
 
 class Texture
 {
-public:
+private:
     void* imageData;
     uint64_t imageSize;
 
@@ -14,8 +14,9 @@ public:
     int textureHeight; 
     int textureChannels;
     
-    Texture(std::string textureFile);
 
+
+protected:
     vk::raii::Image textureImage = nullptr;
     vk::raii::DeviceMemory textureImageMemory = nullptr;
     vk::raii::ImageView textureImageView = nullptr;
@@ -23,11 +24,15 @@ public:
 
     std::vector<vk::raii::DescriptorSet> textureDescriptorSets;
 
+public:    
+    Texture(std::string textureFile);
     Texture(const Texture&) = delete;
     Texture& operator=(const Texture&) = delete;
 
     Texture(Texture&&) noexcept = default;
     Texture& operator=(Texture&&) noexcept = default;
+
+friend class Renderer3D;
 };
 
 #endif
