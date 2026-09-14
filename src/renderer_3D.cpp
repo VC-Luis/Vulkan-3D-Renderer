@@ -144,8 +144,7 @@ vk::Extent2D Renderer3D::chooseSwapExtent(vk::SurfaceCapabilitiesKHR const& capa
         return capabilities.currentExtent; 
         //If the width of the extent is its maximum value, it means (by convention) that we can not match the resolution of the window by setting the width and height in the currentExtent member
     }
-    int width, height;
-    glfwGetFramebufferSize(showWindow.GLWindow, &width, &height);
+    auto [width, height] = showWindow.getSize();
 
     return 
     {
@@ -406,7 +405,7 @@ void Renderer3D::createTextureSampler(Texture& texture)
 void Renderer3D::createInstance(Window& showWindow, bool enableValidationLayers)
 {
     vk::ApplicationInfo appInfo;
-    appInfo.pApplicationName = showWindow.windowName.c_str();
+    appInfo.pApplicationName = showWindow.getWindowName().c_str();
     appInfo.applicationVersion = VK_MAKE_VERSION(0, 1, 0);
     appInfo.pEngineName = engineName;
     appInfo.engineVersion = VK_MAKE_VERSION(engineMajorVersion, engineMinorVersion, enginePatchVersion);
@@ -487,7 +486,7 @@ void Renderer3D::createSurface(Window& window)
 {
     VkSurfaceKHR windowSurface;
 
-    if(glfwCreateWindowSurface(*instance, window.GLWindow, nullptr, &windowSurface) != VkResult::VK_SUCCESS)
+    if(glfwCreateWindowSurface(*instance, window.getHandle(), nullptr, &windowSurface) != VkResult::VK_SUCCESS)
     {
         throw std::runtime_error("Failed to create window surface!");
     }
@@ -830,12 +829,11 @@ void Renderer3D::createSyncObjects()
 
 void Renderer3D::recreateSwapchain(Window& showWindow)
 {
-    int width = 0, height = 0;
-    glfwGetFramebufferSize(showWindow.GLWindow, &width, &height);
+    auto [width, height] = showWindow.getSize();
 
     while (width == 0 || height == 0)
     {
-        glfwGetFramebufferSize(showWindow.GLWindow, &width, &height);
+        auto [width, height] = showWindow.getSize();
         glfwWaitEvents();
         std::cout << YELLOW << "Window was either minimised or has no size, so we'll stop until it is visible again" << RESET << std::endl;
     }

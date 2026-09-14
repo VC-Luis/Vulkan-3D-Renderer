@@ -20,8 +20,9 @@
 Camera cam(glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f), 60.0f, 1.0f, 90.0f, 0.1f, 0.1f, 1000.0f);
 bool firstMouse = true;
 Window window(800, 600, "3D Renderer Test");
-float lastX = (float)window.width / 2;
-float lastY = (float)window.height / 2;
+auto [width, height] = window.getSize();
+float lastX = (float)width / 2;
+float lastY = (float)height / 2;
 
 void mouse_callback(GLFWwindow* window, double xPos, double yPos)
 {
@@ -48,8 +49,8 @@ int main(int argc, char const *argv[])
 {
     Renderer3D renderer;
 
-    glfwSetCursorPosCallback(window.GLWindow, mouse_callback);
-	glfwSetInputMode(window.GLWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    glfwSetCursorPosCallback(window.getHandle(), mouse_callback);
+	glfwSetInputMode(window.getHandle(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     renderer.engineSetup(window, true);
     renderer.setupGPU();
@@ -96,27 +97,27 @@ int main(int argc, char const *argv[])
         boatTestModel.rotationAngle += 0.01f;
         boatTestModel.position = glm::vec3{0.0f, 0.0f, sin(angle) * 10};
 
-        if(glfwGetKey(window.GLWindow, GLFW_KEY_W) == GLFW_PRESS)
+        if(glfwGetKey(window.getHandle(), GLFW_KEY_W) == GLFW_PRESS)
         {
             cam.position += cam.direction * 0.1f;
         }
-        if(glfwGetKey(window.GLWindow, GLFW_KEY_S) == GLFW_PRESS)
+        if(glfwGetKey(window.getHandle(), GLFW_KEY_S) == GLFW_PRESS)
         {
             cam.position -= cam.direction * 0.1f;
         }
-        if(glfwGetKey(window.GLWindow, GLFW_KEY_A) == GLFW_PRESS)
+        if(glfwGetKey(window.getHandle(), GLFW_KEY_A) == GLFW_PRESS)
         {
             cam.position -= cam.camRight * 0.1f;
         }
-        if(glfwGetKey(window.GLWindow, GLFW_KEY_D) == GLFW_PRESS)
+        if(glfwGetKey(window.getHandle(), GLFW_KEY_D) == GLFW_PRESS)
         {
             cam.position += cam.camRight * 0.1f;
         }
-        if(glfwGetKey(window.GLWindow, GLFW_KEY_SPACE) == GLFW_PRESS)
+        if(glfwGetKey(window.getHandle(), GLFW_KEY_SPACE) == GLFW_PRESS)
         {
             cam.position += cam.up * 0.1f;
         }
-        if(glfwGetKey(window.GLWindow, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
+        if(glfwGetKey(window.getHandle(), GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
         {
             cam.position -= cam.up * 0.1f;
         }
