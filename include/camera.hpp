@@ -5,7 +5,7 @@
 
 class Camera
 {
-public:
+private:
 	const glm::vec3 up = glm::vec3(0.0f, 0.0f, 1.0f);
 
 	//The position of the camera in world space
@@ -28,9 +28,27 @@ public:
 	float nearPlane = 0.1f;
 	float farPlane = 100.0f;
 
+public:
 	Camera(glm::vec3 initialPosition, glm::vec3 initialDirection, float initialFOV, float minimumFOV, float maximumFOV, float mouseSensitivity, float nearClip, float farClip);
 
     void updateCameraParameters();
+
+	float getPitch();
+	float getYaw();
+	float getFOV();
+	float getSensitivity();
+
+	glm::vec3 getDirection();
+	glm::vec3 getPosition();
+
+	glm::vec3 getRight();
+
+	std::pair<float, float> getExtremePlanes();
+
+	void move(glm::vec3 offset);
+
+	void setPitch(float newPitch);
+	void setYaw(float newYaw);
 };
 
 #endif

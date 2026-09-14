@@ -854,8 +854,8 @@ void Renderer3D::updateUniformBuffer(uint32_t currentImage, Camera cam)
     float time = std::chrono::duration<float>(currentTime - startTime).count();
 
     CameraUBO UBO;
-    UBO.viewMatrix = glm::lookAt(cam.position, cam.position + cam.direction, glm::vec3(0.0f, 0.0f, 1.0f));
-    UBO.projectionMatrix = glm::perspective(glm::radians(cam.fov), static_cast<float>(swapChainExtent.width) / static_cast<float>(swapChainExtent.height), cam.nearPlane, cam.farPlane);
+    UBO.viewMatrix = glm::lookAt(cam.getPosition(), cam.getPosition() + cam.getDirection(), glm::vec3(0.0f, 0.0f, 1.0f));
+    UBO.projectionMatrix = glm::perspective(glm::radians(cam.getFOV()), static_cast<float>(swapChainExtent.width) / static_cast<float>(swapChainExtent.height), cam.getExtremePlanes().first, cam.getExtremePlanes().second);
     UBO.projectionMatrix[1][1] *= -1.0f;
 
     memcpy(uniformBuffersMapped[currentImage], &UBO, sizeof(UBO));

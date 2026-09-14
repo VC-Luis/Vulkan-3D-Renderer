@@ -32,3 +32,58 @@ void Camera::updateCameraParameters()
     camRight = glm::normalize(glm::cross(direction, up));
     camUp = glm::normalize(glm::cross(direction, camRight));
 }
+
+float Camera::getPitch()
+{
+    return pitch;
+}
+
+float Camera::getYaw()
+{
+    return yaw;
+}
+
+float Camera::getFOV()
+{
+    return fov;
+}
+
+glm::vec3 Camera::getDirection()
+{
+    return direction;
+}
+
+glm::vec3 Camera::getPosition()
+{
+    return position;
+}
+
+std::pair<float, float> Camera::getExtremePlanes()
+{
+    return std::make_pair(nearPlane, farPlane);
+}
+
+void Camera::move(glm::vec3 offset)
+{
+    position += offset;
+}
+
+glm::vec3 Camera::getRight()
+{
+    return camRight;
+}
+
+float Camera::getSensitivity()
+{
+    return sensitivity;
+}
+
+void Camera::setPitch(float newPitch)
+{
+    pitch = newPitch;
+}
+
+void Camera::setYaw(float newYaw)
+{
+    yaw = newYaw;
+}

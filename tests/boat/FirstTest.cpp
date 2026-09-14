@@ -37,12 +37,11 @@ void mouse_callback(GLFWwindow* window, double xPos, double yPos)
     lastX = (float)xPos;
     lastY = (float)yPos;
 
-    xOffset *= cam.sensitivity;
-    yOffset *= cam.sensitivity;
+    xOffset *= cam.getSensitivity();
+    yOffset *= cam.getSensitivity();
 
-
-    cam.yaw += xOffset;
-    cam.pitch += -yOffset;
+    cam.setYaw(cam.getYaw() + xOffset);
+    cam.setPitch(cam.getPitch() - yOffset);
 }
 
 int main(int argc, char const *argv[])
@@ -99,27 +98,27 @@ int main(int argc, char const *argv[])
 
         if(glfwGetKey(window.getHandle(), GLFW_KEY_W) == GLFW_PRESS)
         {
-            cam.position += cam.direction * 0.1f;
+            cam.move(cam.getDirection() * 0.1f);
         }
         if(glfwGetKey(window.getHandle(), GLFW_KEY_S) == GLFW_PRESS)
         {
-            cam.position -= cam.direction * 0.1f;
+            cam.move(-cam.getDirection() * 0.1f);
         }
         if(glfwGetKey(window.getHandle(), GLFW_KEY_A) == GLFW_PRESS)
         {
-            cam.position -= cam.camRight * 0.1f;
+            cam.move(-cam.getRight() * 0.1f);
         }
         if(glfwGetKey(window.getHandle(), GLFW_KEY_D) == GLFW_PRESS)
         {
-            cam.position += cam.camRight * 0.1f;
+            cam.move(+cam.getRight() * 0.1f);
         }
         if(glfwGetKey(window.getHandle(), GLFW_KEY_SPACE) == GLFW_PRESS)
         {
-            cam.position += cam.up * 0.1f;
+            cam.move(glm::vec3(0.0f, 0.0f, 0.1f));
         }
         if(glfwGetKey(window.getHandle(), GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
         {
-            cam.position -= cam.up * 0.1f;
+            cam.move(glm::vec3(0.0f, 0.0f, -0.1f));
         }
 
         //First, we have to wait for the previous frame to finish rendering
