@@ -95,7 +95,7 @@ bool isDeviceSuitable(vk::raii::PhysicalDevice const& physicalDevice)
     return true;
 }
 
-int myScoringFunction(vk::raii::PhysicalDevice GPU)
+int dGPUBiascoringFunction(vk::raii::PhysicalDevice GPU)
 {
     int score = 0;
 
@@ -144,8 +144,7 @@ vk::Extent2D Renderer3D::chooseSwapExtent(vk::SurfaceCapabilitiesKHR const& capa
         return capabilities.currentExtent; 
         //If the width of the extent is its maximum value, it means (by convention) that we can not match the resolution of the window by setting the width and height in the currentExtent member
     }
-    int width, height;
-    glfwGetFramebufferSize(showWindow.GLWindow, &width, &height);
+    auto [width, height] = showWindow.getSize();
 
     return 
     {
@@ -403,13 +402,13 @@ void Renderer3D::createTextureSampler(Texture& texture)
 
 //Firstly, we need to create the Vulkan instance, the connection between this application and the Vulkan library
 //To do this, we just need to give it some informations
-void Renderer3D::createInstance(std::string engineName, Window& showWindow, bool enableValidationLayers, EngineVersion version)
+void Renderer3D::createInstance(Window& showWindow, bool enableValidationLayers)
 {
     vk::ApplicationInfo appInfo;
-    appInfo.pApplicationName = showWindow.windowName.c_str();
-    appInfo.applicationVersion = VK_MAKE_VERSION(version.major, version.minor, version.patch);
-    appInfo.pEngineName = engineName.c_str();
-    appInfo.engineVersion = VK_MAKE_VERSION(version.major, version.minor, version.patch);
+    appInfo.pApplicationName = showWindow.getWindowName().c_str();
+    appInfo.applicationVersion = VK_MAKE_VERSION(0, 1, 0);
+    appInfo.pEngineName = engineName;
+    appInfo.engineVersion = VK_MAKE_VERSION(engineMajorVersion, engineMinorVersion, enginePatchVersion);
     appInfo.apiVersion = vk::ApiVersion14; // The API version being 1.4 will help us with using Slang for shaders
 
     //Now we need to check if the requested validation layers (used for debugging) are available
@@ -487,7 +486,7 @@ void Renderer3D::createSurface(Window& window)
 {
     VkSurfaceKHR windowSurface;
 
-    if(glfwCreateWindowSurface(*instance, window.GLWindow, nullptr, &windowSurface) != VkResult::VK_SUCCESS)
+    if(glfwCreateWindowSurface(*instance, window.getHandle(), nullptr, &windowSurface) != VkResult::VK_SUCCESS)
     {
         throw std::runtime_error("Failed to create window surface!");
     }
@@ -674,12 +673,6 @@ void Renderer3D::createDescriptorSetLayout()
     UBOLayoutBinding.descriptorCount = 1;
     UBOLayoutBinding.stageFlags = vk::ShaderStageFlagBits::eVertex;
 
-    //vk::DescriptorSetLayoutBinding samplerLayoutBinding;
-    //samplerLayoutBinding.binding = 1;
-    //samplerLayoutBinding.descriptorType = vk::DescriptorType::eCombinedImageSampler;
-    //samplerLayoutBinding.descriptorCount = 1;
-    //samplerLayoutBinding.stageFlags = vk::ShaderStageFlagBits::eFragment;
-
     std::array<vk::DescriptorSetLayoutBinding, 1> bindings = {UBOLayoutBinding};
 
     vk::DescriptorSetLayoutCreateInfo layoutInfo;
@@ -693,8 +686,6 @@ void Renderer3D::createDescriptorSetLayout()
         throw std::runtime_error("The descriptor set layout could not be made");
     }
 }
-
-//template<typename VertexStruct> void Renderer3D::createGraphicsPipeline(const std::string& vertShaderPath, const char* vertStartpoint, const std::string& fragShaderPath, const char* fragStartpoint)
 
 //Command pools manage the memory that is used to store the buffers and command buffers are allocated from them
 void Renderer3D::createCommandPool()
@@ -771,10 +762,6 @@ void Renderer3D::createDescriptorPool()
     UBOPoolSize.type = vk::DescriptorType::eUniformBuffer;
     UBOPoolSize.descriptorCount = MAX_FRAMES_IN_FLIGHT;
 
-    //vk::DescriptorPoolSize samplerPoolSize;
-    //samplerPoolSize.type = vk::DescriptorType::eCombinedImageSampler;
-    //samplerPoolSize.descriptorCount = MAX_FRAMES_IN_FLIGHT;
-
     std::array<vk::DescriptorPoolSize, 1> poolSize = {UBOPoolSize};
     
     vk::DescriptorPoolCreateInfo poolInfo;
@@ -805,11 +792,6 @@ void Renderer3D::createDescriptorSets(size_t UBOSize)
         bufferInfo.offset = 0;
         bufferInfo.range = UBOSize;
 
-        //vk::DescriptorImageInfo imageInfo;
-        //imageInfo.sampler = texture.textureSampler;
-        //imageInfo.imageView = texture.textureImageView;
-        //imageInfo.imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
-
         vk::WriteDescriptorSet descriptorWriteBuffer;
         descriptorWriteBuffer.dstSet = descriptorSets[i];
         descriptorWriteBuffer.dstBinding = 0;
@@ -817,14 +799,6 @@ void Renderer3D::createDescriptorSets(size_t UBOSize)
         descriptorWriteBuffer.descriptorCount = 1;
         descriptorWriteBuffer.descriptorType = vk::DescriptorType::eUniformBuffer;
         descriptorWriteBuffer.pBufferInfo = &bufferInfo;
-
-        //vk::WriteDescriptorSet descriptorWriteImage;
-        //descriptorWriteImage.dstSet = descriptorSets[i];
-        //descriptorWriteImage.dstBinding = 1;
-        //descriptorWriteImage.dstArrayElement = 0;
-        //descriptorWriteImage.descriptorCount = 1;
-        //descriptorWriteImage.descriptorType = vk::DescriptorType::eCombinedImageSampler;
-        //descriptorWriteImage.pImageInfo = &imageInfo;
 
         std::array<vk::WriteDescriptorSet, 1> descriptorWrites = {descriptorWriteBuffer};
         
@@ -855,12 +829,11 @@ void Renderer3D::createSyncObjects()
 
 void Renderer3D::recreateSwapchain(Window& showWindow)
 {
-    int width = 0, height = 0;
-    glfwGetFramebufferSize(showWindow.GLWindow, &width, &height);
+    auto [width, height] = showWindow.getSize();
 
     while (width == 0 || height == 0)
     {
-        glfwGetFramebufferSize(showWindow.GLWindow, &width, &height);
+        auto [width, height] = showWindow.getSize();
         glfwWaitEvents();
         std::cout << YELLOW << "Window was either minimised or has no size, so we'll stop until it is visible again" << RESET << std::endl;
     }
@@ -881,8 +854,8 @@ void Renderer3D::updateUniformBuffer(uint32_t currentImage, Camera cam)
     float time = std::chrono::duration<float>(currentTime - startTime).count();
 
     CameraUBO UBO;
-    UBO.viewMatrix = glm::lookAt(cam.position, cam.position + cam.direction, glm::vec3(0.0f, 0.0f, 1.0f));
-    UBO.projectionMatrix = glm::perspective(glm::radians(cam.fov), static_cast<float>(swapChainExtent.width) / static_cast<float>(swapChainExtent.height), cam.nearPlane, cam.farPlane);
+    UBO.viewMatrix = glm::lookAt(cam.getPosition(), cam.getPosition() + cam.getDirection(), glm::vec3(0.0f, 0.0f, 1.0f));
+    UBO.projectionMatrix = glm::perspective(glm::radians(cam.getFOV()), static_cast<float>(swapChainExtent.width) / static_cast<float>(swapChainExtent.height), cam.getExtremePlanes().first, cam.getExtremePlanes().second);
     UBO.projectionMatrix[1][1] *= -1.0f;
 
     memcpy(uniformBuffersMapped[currentImage], &UBO, sizeof(UBO));
@@ -1019,7 +992,6 @@ void Renderer3D::recordCommandBuffer(uint32_t imageIndex)
     commandBuffers[frameIndex].end();
 }
 
-
 void Renderer3D::fetchNewImage(Window& showWindow, Camera cam)
 {
     auto [result, imageIndex] = swapChain.acquireNextImage(UINT64_MAX, *presentCompleteSemaphores[frameIndex], nullptr);
@@ -1072,9 +1044,9 @@ void Renderer3D::fetchNewImage(Window& showWindow, Camera cam)
     }
 }
 
-void Renderer3D::engineSetup(std::string engineName, Window& showWindow, bool enableValidationLayers, EngineVersion version)
+void Renderer3D::engineSetup(Window& showWindow, bool enableValidationLayers)
 {
-    createInstance(engineName, showWindow, enableValidationLayers, version);
+    createInstance(showWindow, enableValidationLayers);
     setupDebugMessenger(enableValidationLayers);
     createSurface(showWindow);
 }
@@ -1144,12 +1116,6 @@ std::pair<vk::raii::Image, vk::raii::DeviceMemory> Renderer3D::createImage(uint3
 
     return {std::move(image), std::move(imageMemory)};
 }
-
-/*void Renderer3D::loadModel(Mesh mesh)
-{
-    vertices = mesh.vertices;
-    indices = mesh.indices;
-}*/
 
 void Renderer3D::createDepthResources()
 {
@@ -1403,4 +1369,13 @@ void Renderer3D::createTextureDescriptorPool()
 
         samplerPools.push_back(vk::raii::DescriptorPool(logicalDevice, samplerPoolInfo));
     }
+}
+
+Renderer3D::Renderer3D(Window& showWindow, bool enableValidationLayers)
+{
+    engineSetup(showWindow, enableValidationLayers);
+    setupGPU();
+    generateImageManagement(showWindow);
+    createDepthResources();
+    generateCommandInfrastructure();
 }

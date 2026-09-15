@@ -65,3 +65,19 @@ bool Window::windowShouldClose()
     glfwPollEvents();
     return glfwWindowShouldClose(GLWindow);
 }
+
+std::string Window::getWindowName()
+{
+    return windowName;
+}
+
+std::pair<uint32_t, uint32_t> Window::getSize()
+{
+    glfwGetFramebufferSize(GLWindow, (int*) &width, (int*) &height);
+    return std::make_pair(width, height);
+}
+
+GLFWwindow* Window::getHandle()
+{
+    return GLWindow;
+}

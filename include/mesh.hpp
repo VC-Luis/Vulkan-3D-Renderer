@@ -5,15 +5,11 @@
 
 class Mesh
 {
-public:
+private:
     std::vector<Vertex> vertices;
     std::vector<uint32_t> indices;
 
-    Mesh(std::vector<Vertex> meshVertices, std::vector<uint32_t> meshIndices);
-    Mesh(std::string meshFile);
-
-    void getData(std::string meshFile);
-
+protected:
 
     vk::raii::Buffer vertexBuffer = nullptr;
     vk::raii::DeviceMemory vertexBufferMemory = nullptr;
@@ -21,10 +17,17 @@ public:
     vk::raii::Buffer indexBuffer = nullptr;
     vk::raii::DeviceMemory indexBufferMemory = nullptr;
 
+public:
+    Mesh(std::vector<Vertex> meshVertices, std::vector<uint32_t> meshIndices);
+    Mesh(std::string meshFile);
+
+    void getData(std::string meshFile);
 
     Mesh& operator=(const Mesh&) = delete;
 
     Mesh& operator=(Mesh&&) noexcept = default;
+
+friend class Renderer3D;
 };
 
 #endif

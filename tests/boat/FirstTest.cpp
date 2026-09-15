@@ -6,22 +6,12 @@
 
 #include <chrono>
 
-#define RESET   "\033[0m"
-#define RED     "\033[31m"
-#define GREEN   "\033[32m"
-#define YELLOW  "\033[33m"
-#define BLUE    "\033[34m"
-#define BOLD    "\033[1m"
-#define UNDERLINE "\033[4m"
-#define BRIGHT_RED "\033[91m"
-#define BRIGHT_YELLOW "\33[93m"
-#define BRIGHT_WHITE "\033[97m"
-
 Camera cam(glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f), 60.0f, 1.0f, 90.0f, 0.1f, 0.1f, 1000.0f);
 bool firstMouse = true;
 Window window(800, 600, "3D Renderer Test");
-float lastX = (float)window.width / 2;
-float lastY = (float)window.height / 2;
+auto [width, height] = window.getSize();
+float lastX = (float)width / 2;
+float lastY = (float)height / 2;
 
 void mouse_callback(GLFWwindow* window, double xPos, double yPos)
 {
@@ -36,26 +26,19 @@ void mouse_callback(GLFWwindow* window, double xPos, double yPos)
     lastX = (float)xPos;
     lastY = (float)yPos;
 
-    xOffset *= cam.sensitivity;
-    yOffset *= cam.sensitivity;
+    xOffset *= cam.getSensitivity();
+    yOffset *= cam.getSensitivity();
 
-
-    cam.yaw += xOffset;
-    cam.pitch += -yOffset;
+    cam.setYaw(cam.getYaw() + xOffset);
+    cam.setPitch(cam.getPitch() - yOffset);
 }
 
 int main(int argc, char const *argv[])
 {
-    Renderer3D renderer;
+    glfwSetCursorPosCallback(window.getHandle(), mouse_callback);
+	glfwSetInputMode(window.getHandle(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
-    glfwSetCursorPosCallback(window.GLWindow, mouse_callback);
-	glfwSetInputMode(window.GLWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-
-    renderer.engineSetup("Test", window, true, {0, 1, 0});
-    renderer.setupGPU();
-    renderer.generateImageManagement(window);
-    renderer.createDepthResources();
-    renderer.generateCommandInfrastructure();
+    Renderer3D renderer(window, true);
 
     renderer.createGraphicsPipeline("assets/shader.spv", "vertMain", "assets/shader.spv", "fragMain");
     
@@ -96,29 +79,29 @@ int main(int argc, char const *argv[])
         boatTestModel.rotationAngle += 0.01f;
         boatTestModel.position = glm::vec3{0.0f, 0.0f, sin(angle) * 10};
 
-        if(glfwGetKey(window.GLWindow, GLFW_KEY_W) == GLFW_PRESS)
+        if(glfwGetKey(window.getHandle(), GLFW_KEY_W) == GLFW_PRESS)
         {
-            cam.position += cam.direction * 0.1f;
+            cam.move(cam.getDirection() * 0.1f);
         }
-        if(glfwGetKey(window.GLWindow, GLFW_KEY_S) == GLFW_PRESS)
+        if(glfwGetKey(window.getHandle(), GLFW_KEY_S) == GLFW_PRESS)
         {
-            cam.position -= cam.direction * 0.1f;
+            cam.move(-cam.getDirection() * 0.1f);
         }
-        if(glfwGetKey(window.GLWindow, GLFW_KEY_A) == GLFW_PRESS)
+        if(glfwGetKey(window.getHandle(), GLFW_KEY_A) == GLFW_PRESS)
         {
-            cam.position -= cam.camRight * 0.1f;
+            cam.move(-cam.getRight() * 0.1f);
         }
-        if(glfwGetKey(window.GLWindow, GLFW_KEY_D) == GLFW_PRESS)
+        if(glfwGetKey(window.getHandle(), GLFW_KEY_D) == GLFW_PRESS)
         {
-            cam.position += cam.camRight * 0.1f;
+            cam.move(+cam.getRight() * 0.1f);
         }
-        if(glfwGetKey(window.GLWindow, GLFW_KEY_SPACE) == GLFW_PRESS)
+        if(glfwGetKey(window.getHandle(), GLFW_KEY_SPACE) == GLFW_PRESS)
         {
-            cam.position += cam.up * 0.1f;
+            cam.move(glm::vec3(0.0f, 0.0f, 0.1f));
         }
-        if(glfwGetKey(window.GLWindow, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
+        if(glfwGetKey(window.getHandle(), GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
         {
-            cam.position -= cam.up * 0.1f;
+            cam.move(glm::vec3(0.0f, 0.0f, -0.1f));
         }
 
         //First, we have to wait for the previous frame to finish rendering
@@ -127,8 +110,6 @@ int main(int argc, char const *argv[])
         //After that, we fetch the next image from the swap chain
         renderer.fetchNewImage(window, cam);
     }
-
-    std::cout << "RENDERING OVER" << std::endl;
 
     renderer.cleanUpSwapchain();
 
