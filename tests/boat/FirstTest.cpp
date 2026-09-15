@@ -6,17 +6,6 @@
 
 #include <chrono>
 
-#define RESET   "\033[0m"
-#define RED     "\033[31m"
-#define GREEN   "\033[32m"
-#define YELLOW  "\033[33m"
-#define BLUE    "\033[34m"
-#define BOLD    "\033[1m"
-#define UNDERLINE "\033[4m"
-#define BRIGHT_RED "\033[91m"
-#define BRIGHT_YELLOW "\33[93m"
-#define BRIGHT_WHITE "\033[97m"
-
 Camera cam(glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f), 60.0f, 1.0f, 90.0f, 0.1f, 0.1f, 1000.0f);
 bool firstMouse = true;
 Window window(800, 600, "3D Renderer Test");
@@ -46,16 +35,10 @@ void mouse_callback(GLFWwindow* window, double xPos, double yPos)
 
 int main(int argc, char const *argv[])
 {
-    Renderer3D renderer;
-
     glfwSetCursorPosCallback(window.getHandle(), mouse_callback);
 	glfwSetInputMode(window.getHandle(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
-    renderer.engineSetup(window, true);
-    renderer.setupGPU();
-    renderer.generateImageManagement(window);
-    renderer.createDepthResources();
-    renderer.generateCommandInfrastructure();
+    Renderer3D renderer(window, true);
 
     renderer.createGraphicsPipeline("assets/shader.spv", "vertMain", "assets/shader.spv", "fragMain");
     
@@ -127,8 +110,6 @@ int main(int argc, char const *argv[])
         //After that, we fetch the next image from the swap chain
         renderer.fetchNewImage(window, cam);
     }
-
-    std::cout << "RENDERING OVER" << std::endl;
 
     renderer.cleanUpSwapchain();
 

@@ -1370,3 +1370,12 @@ void Renderer3D::createTextureDescriptorPool()
         samplerPools.push_back(vk::raii::DescriptorPool(logicalDevice, samplerPoolInfo));
     }
 }
+
+Renderer3D::Renderer3D(Window& showWindow, bool enableValidationLayers)
+{
+    engineSetup(showWindow, enableValidationLayers);
+    setupGPU();
+    generateImageManagement(showWindow);
+    createDepthResources();
+    generateCommandInfrastructure();
+}

@@ -22,6 +22,7 @@ int dGPUBiascoringFunction(vk::raii::PhysicalDevice GPU);
 class Renderer3D
 {
 public:
+    Renderer3D(Window& showWindow, bool enableValidationLayers);
     /**
      * @brief Sets up the Vulkan instance and associates it with the given window.
      * 
