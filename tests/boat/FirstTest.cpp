@@ -47,15 +47,15 @@ int main(int argc, char const *argv[])
     Texture boatHouseTexture("assets/colorlessmap.png");
 
     Mesh shipMesh("assets/ship-large.obj");
-    Model boatTestModel(shipMesh, glm::vec3(0.0f, 0.0f, 0.0f), glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f), boatTexture);
+    Model boatTestModel(shipMesh, glm::vec3(0.0f, 0.0f, 0.0f), glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(1.0f), boatTexture);
     renderer.drawModel(&boatTestModel);
 
     Mesh oceanLinerMesh("assets/ship-ocean-liner.obj");
-    Model oceanModel(oceanLinerMesh, glm::vec3(0.0f, 10.0f, 0.0f), glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f), ocreanLinerTexture);
+    Model oceanModel(oceanLinerMesh, glm::vec3(0.0f, 10.0f, 0.0f), glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(1.0f), ocreanLinerTexture);
     renderer.drawModel(&oceanModel);
 
     Mesh boatHouseMesh("assets/boat-house-b.obj");
-    Model boatHouseModel(boatHouseMesh, glm::vec3(0.0f, 0.0f, 10.0f), glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f), boatHouseTexture);
+    Model boatHouseModel(boatHouseMesh, glm::vec3(0.0f, 0.0f, 10.0f), glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(1.0f), boatHouseTexture);
     renderer.drawModel(&boatHouseModel);
 
     renderer.createBuffers();
@@ -78,6 +78,8 @@ int main(int argc, char const *argv[])
 
         boatTestModel.rotationAngle += 0.01f;
         boatTestModel.position = glm::vec3{0.0f, 0.0f, sin(angle) * 10};
+
+        boatHouseModel.scale = glm::vec3((sin(angle) + 1.0f) * 0.5f, (cos(angle) + 1.0f) * 0.5f, 1.0f);
 
         if(glfwGetKey(window.getHandle(), GLFW_KEY_W) == GLFW_PRESS)
         {

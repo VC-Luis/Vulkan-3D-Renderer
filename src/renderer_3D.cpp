@@ -976,6 +976,7 @@ void Renderer3D::recordCommandBuffer(uint32_t imageIndex)
         commandBuffers[frameIndex].bindDescriptorSets(vk::PipelineBindPoint::eGraphics, pipelineLayout, 1, *renderingObjects[i]->texture.textureDescriptorSets[frameIndex], nullptr);
 
         glm::mat4 modelMatrix = glm::mat4(1.0f);
+        modelMatrix = glm::scale(modelMatrix, renderingObjects[i]->scale);
         modelMatrix = glm::translate(modelMatrix, renderingObjects[i]->position);
         modelMatrix = glm::rotate(modelMatrix, renderingObjects[i]->rotationAngle, renderingObjects[i]->rotationVector);
 

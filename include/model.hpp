@@ -13,9 +13,10 @@ public:
     glm::vec3 position;
     float rotationAngle;
     glm::vec3 rotationVector;
+    glm::vec3 scale;
     Texture& texture;
 
-    Model(Mesh& modelMesh, glm::vec3 modelPosition, float modelRotationAngle, glm::vec3 modelRotationVector, Texture& modelTexture);
+    Model(Mesh& modelMesh, glm::vec3 modelPosition, float modelRotationAngle, glm::vec3 modelRotationVector, glm::vec3 modelScale, Texture& modelTexture);
 
     glm::mat4 modelMatrix;
 };
