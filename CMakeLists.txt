@@ -16,6 +16,7 @@ add_library(Renderer3D STATIC
     src/camera.cpp
     src/mesh.cpp
     src/model.cpp
+    src/keyboard.cpp
     include/stb_image.h 
     include/tiny_obj_loader.h
     src/texture.cpp

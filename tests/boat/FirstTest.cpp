@@ -2,6 +2,7 @@
 #include <Renderer3D.hpp>
 #include <vertex.hpp>
 #include <camera.hpp>
+#include <keyboard.hpp>
 #include "../include/mesh.hpp"
 
 #include <chrono>
@@ -79,27 +80,27 @@ int main(int argc, char const *argv[])
         boatTestModel.rotationAngle += 0.01f;
         boatTestModel.position = glm::vec3{0.0f, 0.0f, sin(angle) * 10};
 
-        if(glfwGetKey(window.getHandle(), GLFW_KEY_W) == GLFW_PRESS)
+        if(getKeyStatus(Key::W, window) == KeyStatus::Press)
         {
             cam.move(cam.getDirection() * 0.1f);
         }
-        if(glfwGetKey(window.getHandle(), GLFW_KEY_S) == GLFW_PRESS)
+        if(getKeyStatus(Key::S, window) == KeyStatus::Press)
         {
             cam.move(-cam.getDirection() * 0.1f);
         }
-        if(glfwGetKey(window.getHandle(), GLFW_KEY_A) == GLFW_PRESS)
+        if(getKeyStatus(Key::A, window) == KeyStatus::Press)
         {
             cam.move(-cam.getRight() * 0.1f);
         }
-        if(glfwGetKey(window.getHandle(), GLFW_KEY_D) == GLFW_PRESS)
+        if(getKeyStatus(Key::D, window) == KeyStatus::Press)
         {
             cam.move(+cam.getRight() * 0.1f);
         }
-        if(glfwGetKey(window.getHandle(), GLFW_KEY_SPACE) == GLFW_PRESS)
+        if(getKeyStatus(Key::Space, window) == KeyStatus::Press)
         {
             cam.move(glm::vec3(0.0f, 0.0f, 0.1f));
         }
-        if(glfwGetKey(window.getHandle(), GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
+        if(getKeyStatus(Key::LeftCtrl, window) == KeyStatus::Press)
         {
             cam.move(glm::vec3(0.0f, 0.0f, -0.1f));
         }
