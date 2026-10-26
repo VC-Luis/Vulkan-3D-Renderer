@@ -2,7 +2,10 @@
 #include <Renderer3D.hpp>
 #include <vertex.hpp>
 #include <camera.hpp>
+
 #include <keyboard.hpp>
+#include <mouse.hpp>
+
 #include "../include/mesh.hpp"
 
 #include <chrono>
@@ -14,30 +17,9 @@ auto [width, height] = window.getSize();
 float lastX = (float)width / 2;
 float lastY = (float)height / 2;
 
-void mouse_callback(GLFWwindow* window, double xPos, double yPos)
-{
-    if (firstMouse == true)
-    {
-        lastX = (float)xPos;
-        lastY = (float)yPos;
-        firstMouse = false;
-    }
-    float xOffset = (float)xPos - (float)lastX;
-    float yOffset = (float)yPos - (float)lastY;
-    lastX = (float)xPos;
-    lastY = (float)yPos;
-
-    xOffset *= cam.getSensitivity();
-    yOffset *= cam.getSensitivity();
-
-    cam.setYaw(cam.getYaw() + xOffset);
-    cam.setPitch(cam.getPitch() - yOffset);
-}
-
 int main(int argc, char const *argv[])
 {
-    glfwSetCursorPosCallback(window.getHandle(), mouse_callback);
-	glfwSetInputMode(window.getHandle(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    Mouse::setMode(window, MouseMode::Disabled);
 
     Renderer3D renderer(window, true);
 
@@ -70,9 +52,27 @@ int main(int argc, char const *argv[])
 
     double angle = 0;
 
+    bool firstFrame = true;
+    
+    mousePosition currentMousePos;
+    mousePosition lastMousePos;
 
+    mouseVelocity velocity;
+    
     while(!window.windowShouldClose())
     {
+        currentMousePos = Mouse::getPosition(window);
+        if(firstFrame)
+        {
+            lastMousePos = currentMousePos;
+        }
+
+        velocity = {currentMousePos.xPos - lastMousePos.xPos, currentMousePos.yPos - lastMousePos.yPos};
+
+        //printf("\rCurrent mouse velocity: %lf, %lf", velocity.xVelocity, velocity.yVelocity);
+        cam.setYaw(cam.getYaw() + velocity.xVelocity * cam.getSensitivity());
+        cam.setPitch(cam.getPitch() - velocity.yVelocity * cam.getSensitivity());
+
         cam.updateCameraParameters();
 
         angle += 0.01;
@@ -110,6 +110,9 @@ int main(int argc, char const *argv[])
 
         //After that, we fetch the next image from the swap chain
         renderer.fetchNewImage(window, cam);
+
+        firstFrame = false;
+        lastMousePos = currentMousePos;
     }
 
     renderer.cleanUpSwapchain();

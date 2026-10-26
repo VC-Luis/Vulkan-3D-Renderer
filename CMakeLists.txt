@@ -17,6 +17,7 @@ add_library(Renderer3D STATIC
     src/mesh.cpp
     src/model.cpp
     src/keyboard.cpp
+    src/mouse.cpp
     include/stb_image.h 
     include/tiny_obj_loader.h
     src/texture.cpp
