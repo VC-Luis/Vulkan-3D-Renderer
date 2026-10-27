@@ -24,7 +24,7 @@ enum MouseButton
 
 enum MouseMode
 {
-    Normal = 0x00034001, //
+    Normal = 0x00034001,
     Hidden = 0x00034002,
     Disabled = 0x00034003,
     Captured = 0x00034004
@@ -33,12 +33,12 @@ enum MouseMode
 class Mouse
 {
 private:
-    mousePosition position;
-
-    mouseVelocity velocity;
+    mousePosition lastPosition;
+    bool firstFrame = true;
 public:
     static mousePosition getPosition(Window& window);
-    static mouseVelocity getVelocity(Window& window); //TODO
+    static mouseVelocity getVelocity(Window& window, mousePosition currentPos, mousePosition lastPos); //TODO: remove the need for the 2 last arguments
+
     static void setMode(Window& window, MouseMode mode);
 };
 

@@ -63,9 +63,9 @@ enum Key
 
 enum KeyStatus
 {
-    Release,
-    Press,
-    Hold
+    Release = 0,
+    Press = 1,
+    Hold = 2
 };
 
 KeyStatus getKeyStatus(Key key, Window& targetWindow);

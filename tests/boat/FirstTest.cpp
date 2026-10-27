@@ -54,22 +54,15 @@ int main(int argc, char const *argv[])
 
     bool firstFrame = true;
     
-    mousePosition currentMousePos;
-    mousePosition lastMousePos;
+    mousePosition lastMousePos = {0.0, 0.0};
 
     mouseVelocity velocity;
     
     while(!window.windowShouldClose())
     {
-        currentMousePos = Mouse::getPosition(window);
-        if(firstFrame)
-        {
-            lastMousePos = currentMousePos;
-        }
 
-        velocity = {currentMousePos.xPos - lastMousePos.xPos, currentMousePos.yPos - lastMousePos.yPos};
+        velocity = Mouse::getVelocity(window, Mouse::getPosition(window), lastMousePos);
 
-        //printf("\rCurrent mouse velocity: %lf, %lf", velocity.xVelocity, velocity.yVelocity);
         cam.setYaw(cam.getYaw() + velocity.xVelocity * cam.getSensitivity());
         cam.setPitch(cam.getPitch() - velocity.yVelocity * cam.getSensitivity());
 
@@ -112,7 +105,7 @@ int main(int argc, char const *argv[])
         renderer.fetchNewImage(window, cam);
 
         firstFrame = false;
-        lastMousePos = currentMousePos;
+        lastMousePos = Mouse::getPosition(window);
     }
 
     renderer.cleanUpSwapchain();
